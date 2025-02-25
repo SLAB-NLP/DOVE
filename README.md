@@ -4,7 +4,7 @@ DOVE is a large-scale dataset containing prompt perturbations of various evaluat
 
 [![Paper](https://img.shields.io/badge/arxiv-paper-red)](https://arxiv.org/abs/XXXX.XXXXX)
 [![Dataset](https://img.shields.io/badge/🤗-dataset-yellow)](https://huggingface.co/datasets/nlphuji/Dove)
-[![Website](https://img.shields.io/badge/🌐-website-blue)]([https://doveevaluation.github.io](https://slab-nlp.github.io/DOVE/))
+[![Website](https://img.shields.io/badge/🌐-website-blue)](https://slab-nlp.github.io/DOVE/)
 [![Contact](https://img.shields.io/badge/📧-contact-green)](mailto:eliyahaba@mail.huji.ac.il)
 
 ## Abstract
