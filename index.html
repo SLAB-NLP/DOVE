@@ -151,8 +151,6 @@
   </section>
   <!-- End teaser video -->
 
-
-
 <section class="section" style="background-color: #f5f5f5;">
   <div class="container is-max-desktop">
     <!-- Main Call to Action -->
@@ -161,10 +159,10 @@
       <p class="subtitle is-4">Help develop meaningful protocols for systematic LLM evaluation</p>
     </div>
 
-    <!-- Two Columns Section -->
+    <!-- Two Columns Section - using the nowrap solution -->
     <div class="columns is-centered">
       <!-- First Column -->
-      <div class="column is-5">
+      <div class="column">
         <div class="box compact-box">
           <h3 class="title is-4 has-text-centered">Why <span class="highlight-word">Contribute</span>? 🌟</h3>
           <div class="content">
@@ -178,9 +176,9 @@
         </div>
       </div>
 
-      <!-- Second Column -->
-      <div class="column is-7">
-        <div class="box compact-box">
+      <!-- Second Column - with nowrap class for text -->
+      <div class="column">
+        <div class="box compact-box nowrap-items">
           <h3 class="title is-4 has-text-centered">How to <span class="highlight-word">Contribute</span>? 📊</h3>
           <div class="content">
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
@@ -194,23 +192,40 @@
         </div>
       </div>
     </div>
-<!-- Combined Info Box -->
-   <div class="box mt-6">
-     <p class="has-text-centered is-size-5 mb-4">Contributors who provide significant data will be invited as co-authors on the next version of both the paper and dataset.</p>
-     <p class="has-text-centered info-footer">Your data doesn't need to include every field in our <a href="https://arxiv.org/pdf/XXXX.XXXXX.pdf#page=20" class="has-text-info">Dataset Scheme</a>, but should demonstrate systematic evaluation by including model predictions with variations in at least one dimension (for example, without model’s log probabilities).</p>
 
-     <!-- Single Call-to-Action Button -->
-     <div class="has-text-centered mt-5">
-       <a href="mailto:eliyahaba@mail.huji.ac.il" class="button is-primary is-medium">
-         <span class="icon">
-           <i class="fas fa-paper-plane"></i>
-         </span>
-         <span>Share Your Data</span>
-       </a>
-     </div>
-   </div>
- </div>
+    <!-- Combined Info Box -->
+    <div class="box mt-6">
+      <p class="has-text-centered is-size-5 mb-4">Contributors who provide significant data will be invited as co-authors on the next version of both the paper and dataset.</p>
+      <p class="has-text-centered info-footer">Your data doesn't need to include every field in our <a href="https://arxiv.org/pdf/XXXX.XXXXX.pdf#page=20" class="has-text-info">Dataset Scheme</a>, but should demonstrate systematic evaluation by including model predictions with variations in at least one dimension (for example, without model's log probabilities).</p>
+
+      <!-- Single Call-to-Action Button -->
+      <div class="has-text-centered mt-5">
+        <a href="mailto:eliyahaba@mail.huji.ac.il" class="button is-primary is-medium">
+          <span class="icon">
+            <i class="fas fa-paper-plane"></i>
+          </span>
+          <span>Share Your Data</span>
+        </a>
+      </div>
+    </div>
+  </div>
 </section>
+
+<style>
+/* Target the text within list items to prevent wrapping */
+.nowrap-items li {
+  white-space: nowrap;
+}
+
+/* Ensure the box expands to fit nowrap content */
+@media screen and (min-width: 769px) {
+  .nowrap-items {
+    min-width: fit-content;
+  }
+}
+</style>
+
+
   <!-- About Section -->
   <section class="section hero is-light">
     <div class="container is-max-desktop">
