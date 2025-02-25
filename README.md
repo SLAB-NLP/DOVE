@@ -1,12 +1,10 @@
-# 🕊️ DOVE: A Large-Scale Multi-Dimensional Predictions Dataset
-
-## Towards Meaningful LLM Evaluation
+# 🕊️ DOVE: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful LLM Evaluation
 
 DOVE is a large-scale dataset containing prompt perturbations of various evaluation benchmarks designed to study LLM sensitivity from a holistic perspective.
 
 [![Paper](https://img.shields.io/badge/arxiv-paper-red)](https://arxiv.org/abs/XXXX.XXXXX)
 [![Dataset](https://img.shields.io/badge/🤗-dataset-yellow)](https://huggingface.co/datasets/nlphuji/Dove)
-[![Website](https://img.shields.io/badge/🌐-website-blue)](https://doveevaluation.github.io)
+[![Website](https://img.shields.io/badge/🌐-website-blue)](https://slab-nlp.github.io/DOVE/)
 [![Contact](https://img.shields.io/badge/📧-contact-green)](mailto:eliyahaba@mail.huji.ac.il)
 
 ## Abstract
