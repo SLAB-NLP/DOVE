@@ -150,7 +150,6 @@
     </div>
   </section>
   <!-- End teaser video -->
-
 <section class="section" style="background-color: #f5f5f5;">
   <div class="container is-max-desktop">
     <!-- Main Call to Action -->
@@ -159,11 +158,11 @@
       <p class="subtitle is-4">Help develop meaningful protocols for systematic LLM evaluation</p>
     </div>
 
-    <!-- Two Columns Section - using the nowrap solution -->
+    <!-- Two Columns Section - both with nowrap -->
     <div class="columns is-centered">
-      <!-- First Column -->
+      <!-- First Column - also with nowrap -->
       <div class="column">
-        <div class="box compact-box">
+        <div class="box compact-box nowrap-items">
           <h3 class="title is-4 has-text-centered">Why <span class="highlight-word">Contribute</span>? 🌟</h3>
           <div class="content">
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
@@ -176,7 +175,7 @@
         </div>
       </div>
 
-      <!-- Second Column - with nowrap class for text -->
+      <!-- Second Column - with nowrap -->
       <div class="column">
         <div class="box compact-box nowrap-items">
           <h3 class="title is-4 has-text-centered">How to <span class="highlight-word">Contribute</span>? 📊</h3>
@@ -217,14 +216,19 @@
   white-space: nowrap;
 }
 
-/* Ensure the box expands to fit nowrap content */
+/* If you want to target only specific items */
+.nowrap-items:first-child li:first-child,
+.nowrap-items:last-child li:first-child {
+  white-space: nowrap;
+}
+
+/* Ensure the boxes expand to fit nowrap content */
 @media screen and (min-width: 769px) {
   .nowrap-items {
     min-width: fit-content;
   }
 }
 </style>
-
 
   <!-- About Section -->
   <section class="section hero is-light">
