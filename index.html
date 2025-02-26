@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="static/css/index.css">
+
 <style>
   .highlight-word {
     background-color: #ffff00;
@@ -44,6 +45,79 @@
     font-size: 0.9rem;
     color: #666;
   }
+  .code-container {
+    margin-bottom: 1.5rem;
+  }
+
+.code-header {
+  background-color: #777f8c; /* האפור שבחרנו */
+  color: #111111; /* צבע כהה מאוד, כמעט שחור */
+  padding: 8px 16px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  font-size: 14px;
+  font-weight: bold; /* מודגש */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+  .copy-button {
+    background-color: #ffffff; /* יותר בהיר */
+    color: #111111; /* לבן מלא */
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold; /* מודגש */
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .copy-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+        font-weight: bold; /* מודגש */
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .copy-button.copied {
+    background-color: #4cd964;
+    color: #ffffff;
+  }
+
+  .code-container pre {
+    margin-top: 0 !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+  }
+
+  /* סגנון מיוחד למבנה הקבצים */
+  .language-tree {
+    line-height: 1.5;
+  }
+
+  /* צבע לתיקיות */
+  .language-tree .hljs-directory {
+    color: #4a90e2 !important;  /* כחול */
+    font-weight: bold;
+  }
+
+  /* צבע לקבצי parquet */
+  .language-tree .hljs-file {
+    color: #4cd964 !important;  /* ירוק */
+  }
+
+  /* צבע לסימני העץ */
+  .language-tree .hljs-tree {
+    color: #f39c12 !important;  /* כתום */
+  }
+
+  /* צבע להערות */
+  .language-tree .hljs-note {
+    color: #8a8a8a !important;  /* אפור */
+    font-style: italic;
+  }
 </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
@@ -51,6 +125,127 @@
   <script src="static/js/bulma-carousel.min.js"></script>
   <script src="static/js/bulma-slider.min.js"></script>
   <script src="static/js/index.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+<script>
+  // הגדרת שפה מותאמת אישית עבור עץ תיקיות
+  hljs.registerLanguage('tree', function(hljs) {
+    return {
+      name: 'Directory Tree',
+      contains: [
+        {
+          className: 'tree',
+          begin: /[├│└─]+/
+        },
+        {
+          className: 'directory',
+          begin: /[\w.-]+\//
+        },
+        {
+          className: 'file',
+          begin: /[\w.-]+\.parquet/
+        },
+        {
+          className: 'note',
+          begin: /#.*/
+        }
+      ]
+    };
+  });
+
+  // קודם כל נפעיל את highlight.js על כל בלוקי הקוד
+  document.addEventListener('DOMContentLoaded', (event) => {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+
+  // אחר כך נוסיף את המלבנים והכפתורים
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('pre code').forEach((codeBlock) => {
+      const languageClass = codeBlock.className.split(' ').find(cls => cls.startsWith('language-')) || '';
+      const language = languageClass.replace('language-', '');
+
+      let displayLang = 'Code';
+      if (language === 'python') displayLang = 'Python';
+      else if (language === 'bash') displayLang = 'Bash';
+      else if (language === 'bibtex') displayLang = 'BibTeX';
+      else if (language === 'tree') {
+        displayLang = 'Dataset Structure';
+        // לא מוסיף כפתור העתקה לעץ התיקיות
+        const codeContainer = document.createElement('div');
+        codeContainer.className = 'code-container';
+
+        const codeHeader = document.createElement('div');
+        codeHeader.className = 'code-header';
+
+        const langName = document.createElement('span');
+        langName.textContent = displayLang;
+
+        codeHeader.appendChild(langName);
+
+        const preElement = codeBlock.parentNode;
+        const parent = preElement.parentNode;
+
+        parent.insertBefore(codeContainer, preElement);
+
+        codeContainer.appendChild(codeHeader);
+        codeContainer.appendChild(preElement);
+        return;
+      }
+
+      const codeContainer = document.createElement('div');
+      codeContainer.className = 'code-container';
+
+      const codeHeader = document.createElement('div');
+      codeHeader.className = 'code-header';
+
+      const langName = document.createElement('span');
+      langName.textContent = displayLang;
+
+      const copyButton = document.createElement('button');
+      copyButton.className = 'copy-button';
+      copyButton.textContent = 'Copy';
+
+      copyButton.addEventListener('click', () => {
+        const textArea = document.createElement('textarea');
+        textArea.value = codeBlock.textContent;
+        textArea.style.position = 'absolute';
+        textArea.style.left = '-999999px';
+
+        document.body.appendChild(textArea);
+        textArea.select();
+
+        try {
+          document.execCommand('copy');
+          copyButton.textContent = 'Copied!';
+          copyButton.classList.add('copied');
+
+          setTimeout(() => {
+            copyButton.textContent = 'Copy';
+            copyButton.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+        }
+
+        document.body.removeChild(textArea);
+      });
+
+      codeHeader.appendChild(langName);
+      codeHeader.appendChild(copyButton);
+
+      const preElement = codeBlock.parentNode;
+      const parent = preElement.parentNode;
+
+      parent.insertBefore(codeContainer, preElement);
+
+      codeContainer.appendChild(codeHeader);
+      codeContainer.appendChild(preElement);
+    });
+  });
+</script>
 </head>
 <body>
 
@@ -133,23 +328,81 @@
     </div>
   </section>
 
-  <!-- Teaser video-->
-  <section class="hero teaser">
-    <div class="container is-max-desktop">
-      <div class="hero-body">
-        <video poster="" id="tree" autoplay controls muted loop style="width: 100%; max-width: 330px; margin: 0 auto; display: block;">
+<!-- Teaser video-->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div class="video-container" style="position: relative; width: 100%; max-width: 330px; margin: 0 auto;">
+        <video poster="" id="tree" autoplay controls muted style="width: 100%; display: block;">
           <!-- Your video here -->
-          <source src="static/videos/dove.mov"
-          type="video/mp4">
+          <source src="static/videos/dove.mov" type="video/mp4">
         </video>
-        <p class="has-text-centered" style="margin-top: 1rem; font-size: 1.1em; font-weight: 400;">
-          <strong>Building DOVE:</strong> To holistically explore LLM sensitivity,<br>
-          we sample prompts as a walk in the space of various <em>prompt dimensions</em> (rows, above).
-        </p>
       </div>
+      <p class="has-text-centered" style="margin-top: 1rem; font-size: 1.1em; font-weight: 400;">
+        <strong>Building DOVE:</strong> To holistically explore LLM sensitivity,<br>
+        we sample prompts as a walk in the space of various <em>prompt dimensions</em> (rows, above).
+      </p>
     </div>
-  </section>
-  <!-- End teaser video -->
+  </div>
+</section>
+
+<style>
+  /* הסתרת שורת הבקרה כשהסרטון לא בפוקוס */
+  video::-webkit-media-controls-panel {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  /* הצגת שורת הבקרה כשהעכבר מעל הסרטון */
+  .video-container:hover video::-webkit-media-controls-panel {
+    opacity: 1;
+  }
+
+  /* להבטיח שהתמונה האחרונה של הסרטון מוצגת בגודל מלא */
+  video {
+    object-fit: contain;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('tree');
+    let playCount = 0;
+    let autoPlayMode = true;
+
+    // מאזין לאירוע סיום הסרטון
+    video.addEventListener('ended', function() {
+      if (autoPlayMode) {
+        playCount++;
+        if (playCount < 2) {
+          // אם הגענו לפחות מ-2 חזרות, נפעיל את הסרטון שוב
+          video.play();
+        } else {
+          // אם הגענו ל-2 חזרות, נעצור על התמונה האחרונה
+          // נעבור לסוף הסרטון במקרה שאנחנו לא שם
+          video.currentTime = video.duration - 0.1;
+          // משתמשים בפונקציה זו כדי להבטיח שהתמונה האחרונה מוצגת
+          setTimeout(function() {
+            video.pause();
+          }, 100);
+          autoPlayMode = false;
+        }
+      }
+    });
+
+    // מאזין ללחיצה על כפתור פליי
+    video.addEventListener('play', function() {
+      // אם הסרטון הופעל ידנית אחרי שהסתיים פעמיים
+      if (!autoPlayMode) {
+        // איפוס מונה ההפעלות והפעלת הסרטון מההתחלה
+        playCount = 0;
+        video.currentTime = 0;
+        autoPlayMode = true;
+      }
+    });
+  });
+</script>
+<!-- End teaser video -->
 <section class="section" style="background-color: #f5f5f5;">
   <div class="container is-max-desktop">
     <!-- Main Call to Action -->
@@ -257,7 +510,7 @@
       <h2 class="title is-3">Usage</h2>
       <div class="content">
         <h3 class="title is-4">Basic Dataset Loading</h3>
-        <pre><code>from datasets import load_dataset
+        <pre><code class="language-python">from datasets import load_dataset
 from pathlib import Path
 
 # Load a specific model/language/shots combination
@@ -273,23 +526,27 @@ mistral_fr_five = load_dove_subset("Mistral-7B-Instruct-v0.3", language="fr", sh
   </section>
 
   <!-- Project Structure Section -->
-  <section class="section">
+  <section class="section" style="padding-top: 0;">
     <div class="container is-max-desktop">
-      <h2 class="title is-3">Dataset Structure</h2>
       <div class="content">
-        <pre><code>nlphuji/
-├── Dove/
-│   ├── model_name/                      # e.g., "Llama-3.2-1B-Instruct"
-│   │   ├── language/                    # e.g., "en", "fr"
-│   │   │   └── shots_N/                 # N = 0 for zero-shot, N > 0 for few-shot
-│   │   │       ├── mmlu.abstract_algebra.parquet
-│   │   │       ├── mmlu.world_religions.parquet
-│   │   │       ├── ai2_arc.arc_challenge.parquet
-│   │   │       ├── hellaswag.parquet
-│   │   │       └── other_benchmark_files.parquet
-│   └── other_models/
-└── Dove_Lite/
-    └── [same structure and examples with reduced metadata per instance]</code></pre>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Dataset Structure</span>
+          </div>
+          <pre style="background-color: #282c34; padding: 1em; border-radius: 6px; line-height: 1.5; font-family: 'Courier New', monospace; margin-top: 0 !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important;"><span style="color: #f39c12;">nlphuji/
+├── </span><span style="color: #9b59b6; font-weight: bold;">Dove/</span><span style="color: #f39c12;">
+│   ├── </span><span style="color: #4a90e2; font-weight: bold;">model_name/</span><span style="color: #8a8a8a; font-style: italic;"> # e.g., "Llama-3.2-1B-Instruct"</span><span style="color: #f39c12;">
+│   │   ├── </span><span style="color: #4a90e2; font-weight: bold;">language/</span><span style="color: #8a8a8a; font-style: italic;"> # e.g., "en", "fr"</span><span style="color: #f39c12;">
+│   │   │   └── </span><span style="color: #4a90e2; font-weight: bold;">shots_N/</span><span style="color: #8a8a8a; font-style: italic;"> # N = 0 for zero-shot, N > 0 for few-shot</span><span style="color: #f39c12;">
+│   │   │       ├── </span><span style="color: #4cd964;">mmlu.abstract_algebra.parquet</span><span style="color: #f39c12;">
+│   │   │       ├── </span><span style="color: #4cd964;">mmlu.world_religions.parquet</span><span style="color: #f39c12;">
+│   │   │       ├── </span><span style="color: #4cd964;">ai2_arc.arc_challenge.parquet</span><span style="color: #f39c12;">
+│   │   │       ├── </span><span style="color: #4cd964;">hellaswag.parquet</span><span style="color: #f39c12;">
+│   │   │       └── </span><span style="color: #4cd964;">other_benchmark_files.parquet</span><span style="color: #f39c12;">
+│   └── </span><span style="color: #4a90e2; font-weight: bold;">other_models/</span><span style="color: #f39c12;">
+└── </span><span style="color: #e74c3c; font-weight: bold;">Dove_Lite/</span><span style="color: #f39c12;">
+    └── </span><span style="color: #e74c3c;">[same structure and examples with reduced metadata per instance]</span></pre>
+        </div>
       </div>
     </div>
   </section>
@@ -346,7 +603,7 @@ mistral_fr_five = load_dove_subset("Mistral-7B-Instruct-v0.3", language="fr", sh
   <section class="section" id="BibTeX">
     <div class="container is-max-desktop content">
       <h2 class="title">Citation</h2>
-      <pre><code>@article{dove2025,
+      <pre><code class="language-bibtex">@article{dove2025,
  title={DOVE: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful LLM Evaluation},
  author={Anonymous},
  journal={arXiv preprint arXiv:XXXX.XXXXX},
