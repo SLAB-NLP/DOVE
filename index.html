@@ -327,38 +327,81 @@
       </div>
     </div>
   </section>
-
-<!-- Teaser video-->
-<section class="hero teaser">
+<!-- Updated Layout: Video on left, Versions on right -->
+<section class="hero">
   <div class="container is-max-desktop">
-    <div class="hero-body">
-      <div class="video-container" style="position: relative; width: 100%; max-width: 330px; margin: 0 auto;">
-        <video poster="" id="tree" autoplay controls muted style="width: 100%; display: block;">
-          <!-- Your video here -->
-          <source src="static/videos/dove.mov" type="video/mp4">
-        </video>
+    <div class="columns is-vcentered">
+      <!-- Left Column: Video -->
+      <div class="column">
+        <div class="hero-body">
+          <div class="video-container" style="position: relative; width: 100%; max-width: 330px; margin: 0 auto;">
+            <video poster="" id="tree" autoplay controls muted style="width: 100%; display: block;">
+              <!-- Your video here -->
+              <source src="static/videos/dove.mov" type="video/mp4">
+            </video>
+          </div>
+          <p class="has-text-centered" style="margin-top: 1rem; font-size: 1.1em; font-weight: 400;">
+            <strong>Building DOVE:</strong> To holistically explore LLM sensitivity, we sample prompts as a walk in the space of various <em>prompt dimensions</em> (rows, above).
+          </p>
+        </div>
       </div>
-      <p class="has-text-centered" style="margin-top: 1rem; font-size: 1.1em; font-weight: 400;">
-        <strong>Building DOVE:</strong> To holistically explore LLM sensitivity,<br>
-        we sample prompts as a walk in the space of various <em>prompt dimensions</em> (rows, above).
-      </p>
+
+      <!-- Right Column: Versions -->
+      <div class="column">
+        <h2 class="title is-3 has-text-centered">Versions 📦</h2>
+        <!-- Full Version Box -->
+        <div class="box" style="margin-bottom: 1rem;">
+          <h3 class="title is-4">Full Version (2TB)</h3>
+          <div class="content">
+            <ul>
+              <li>Complete token-level probabilities</li>
+              <li>Detailed few-shot examples</li>
+              <li>Comprehensive model behavior analysis</li>
+            </ul>
+            <div class="has-text-centered">
+              <a href="https://huggingface.co/datasets/nlphuji/Dove" class="button is-primary is-outlined mt-2">
+                <span class="icon">🤗</span>
+                <span>Download Full Version</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lite Version Box -->
+        <div class="box">
+          <h3 class="title is-4">Lite Version (200GB)</h3>
+          <div class="content">
+            <ul>
+              <li>Core prompt variations</li>
+              <li>Model responses and Evaluation scores</li>
+              <li>Perfect for quick experimentation</li>
+            </ul>
+            <div class="has-text-centered">
+              <a href="https://huggingface.co/datasets/nlphuji/Dove_Lite" class="button is-primary is-outlined mt-2">
+                <span class="icon">🤗</span>
+                <span>Download Lite Version</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
-  /* הסתרת שורת הבקרה כשהסרטון לא בפוקוס */
+  /* Hide control bar when video is not in focus */
   video::-webkit-media-controls-panel {
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
   }
 
-  /* הצגת שורת הבקרה כשהעכבר מעל הסרטון */
+  /* Show control bar when mouse is over video */
   .video-container:hover video::-webkit-media-controls-panel {
     opacity: 1;
   }
 
-  /* להבטיח שהתמונה האחרונה של הסרטון מוצגת בגודל מלא */
+  /* Ensure the last frame of the video is displayed at full size */
   video {
     object-fit: contain;
   }
@@ -370,18 +413,18 @@
     let playCount = 0;
     let autoPlayMode = true;
 
-    // מאזין לאירוע סיום הסרטון
+    // Listen for video end event
     video.addEventListener('ended', function() {
       if (autoPlayMode) {
         playCount++;
         if (playCount < 2) {
-          // אם הגענו לפחות מ-2 חזרות, נפעיל את הסרטון שוב
+          // If less than 2 loops, play again
           video.play();
         } else {
-          // אם הגענו ל-2 חזרות, נעצור על התמונה האחרונה
-          // נעבור לסוף הסרטון במקרה שאנחנו לא שם
+          // After 2 loops, stop on last frame
+          // Move to end of video if not already there
           video.currentTime = video.duration - 0.1;
-          // משתמשים בפונקציה זו כדי להבטיח שהתמונה האחרונה מוצגת
+          // Use this function to ensure last frame is displayed
           setTimeout(function() {
             video.pause();
           }, 100);
@@ -390,11 +433,11 @@
       }
     });
 
-    // מאזין ללחיצה על כפתור פליי
+    // Listen for play button click
     video.addEventListener('play', function() {
-      // אם הסרטון הופעל ידנית אחרי שהסתיים פעמיים
+      // If video was manually played after finishing twice
       if (!autoPlayMode) {
-        // איפוס מונה ההפעלות והפעלת הסרטון מההתחלה
+        // Reset play count and start from beginning
         playCount = 0;
         video.currentTime = 0;
         autoPlayMode = true;
