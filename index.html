@@ -546,14 +546,39 @@
       </div>
     </div>
   </section>
+<!-- Updated Usage Section with Better Structure and Titles -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Using DOVE</h2>
 
-<!-- Usage Section -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3">Usage</h2>
-      <div class="content">
-        <h3 class="title is-4">Basic Dataset Loading</h3>
-        <pre><code class="language-python">from datasets import load_dataset
+    <!-- First Section: Dataset Structure (Previously after Basic Dataset Loading) -->
+    <div class="content">
+      <h3 class="title is-4">📁 Dataset Structure</h3>
+      <div class="code-container">
+        <div class="code-header">
+          <span>Repository Organization</span>
+        </div>
+        <pre style="background-color: #282c34; padding: 1em; border-radius: 6px; line-height: 1.5; font-family: 'Courier New', monospace; margin-top: 0 !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important;"><span style="color: #f39c12;">nlphuji/
+├── </span><span style="color: #9b59b6; font-weight: bold;">Dove/</span><span style="color: #f39c12;">
+│   ├── </span><span style="color: #4a90e2; font-weight: bold;">model_name/</span><span style="color: #8a8a8a; font-style: italic;"> # e.g., "Llama-3.2-1B-Instruct"</span><span style="color: #f39c12;">
+│   │   ├── </span><span style="color: #4a90e2; font-weight: bold;">language/</span><span style="color: #8a8a8a; font-style: italic;"> # e.g., "en", "fr"</span><span style="color: #f39c12;">
+│   │   │   └── </span><span style="color: #4a90e2; font-weight: bold;">shots_N/</span><span style="color: #8a8a8a; font-style: italic;"> # N = 0 for zero-shot, N > 0 for few-shot</span><span style="color: #f39c12;">
+│   │   │       ├── </span><span style="color: #4cd964;">mmlu.abstract_algebra.parquet</span><span style="color: #f39c12;">
+│   │   │       ├── </span><span style="color: #4cd964;">mmlu.world_religions.parquet</span><span style="color: #f39c12;">
+│   │   │       ├── </span><span style="color: #4cd964;">ai2_arc.arc_challenge.parquet</span><span style="color: #f39c12;">
+│   │   │       ├── </span><span style="color: #4cd964;">hellaswag.parquet</span><span style="color: #f39c12;">
+│   │   │       └── </span><span style="color: #4cd964;">other_benchmark_files.parquet</span><span style="color: #f39c12;">
+│   └── </span><span style="color: #4a90e2; font-weight: bold;">other_models/</span><span style="color: #f39c12;">
+└── </span><span style="color: #e74c3c; font-weight: bold;">Dove_Lite/</span><span style="color: #f39c12;">
+    └── </span><span style="color: #e74c3c;">[same structure and examples with reduced metadata per instance]</span></pre>
+      </div>
+    </div>
+
+    <!-- Second Section: Loading Code (Previously Basic Dataset Loading) -->
+    <div class="content" style="margin-top: 2.5rem;">
+      <h3 class="title is-4">💻 Code Examples</h3>
+      <p class="subtitle is-6">Load specific benchmarks from the dataset using HuggingFace's Datasets library</p>
+      <pre><code class="language-python">from datasets import load_dataset
 
 # Load a specific model/language/shots benchmark
 def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="mmlu.global_facts.parquet"):
@@ -571,84 +596,8 @@ mistral_ja_formal_logic = load_benchmark("nlphuji/Dove", "Mistral-7B-Instruct-v0
 print(f"Dataset loaded successfully:")
 print(f"- Llama (en) arc_challenge: {len(llama_en_arc_challenge)} examples")
 print(f"- Mistral (ja) formal_logic: {len(mistral_ja_formal_logic)} examples")
-        </code></pre>
-      </div>
-    </div>
-  </section>
+</code></pre>
 
-  <!-- Project Structure Section -->
-  <section class="section" style="padding-top: 0;">
-    <div class="container is-max-desktop">
-      <div class="content">
-        <div class="code-container">
-          <div class="code-header">
-            <span>Dataset Structure</span>
-          </div>
-          <pre style="background-color: #282c34; padding: 1em; border-radius: 6px; line-height: 1.5; font-family: 'Courier New', monospace; margin-top: 0 !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important;"><span style="color: #f39c12;">nlphuji/
-├── </span><span style="color: #9b59b6; font-weight: bold;">Dove/</span><span style="color: #f39c12;">
-│   ├── </span><span style="color: #4a90e2; font-weight: bold;">model_name/</span><span style="color: #8a8a8a; font-style: italic;"> # e.g., "Llama-3.2-1B-Instruct"</span><span style="color: #f39c12;">
-│   │   ├── </span><span style="color: #4a90e2; font-weight: bold;">language/</span><span style="color: #8a8a8a; font-style: italic;"> # e.g., "en", "fr"</span><span style="color: #f39c12;">
-│   │   │   └── </span><span style="color: #4a90e2; font-weight: bold;">shots_N/</span><span style="color: #8a8a8a; font-style: italic;"> # N = 0 for zero-shot, N > 0 for few-shot</span><span style="color: #f39c12;">
-│   │   │       ├── </span><span style="color: #4cd964;">mmlu.abstract_algebra.parquet</span><span style="color: #f39c12;">
-│   │   │       ├── </span><span style="color: #4cd964;">mmlu.world_religions.parquet</span><span style="color: #f39c12;">
-│   │   │       ├── </span><span style="color: #4cd964;">ai2_arc.arc_challenge.parquet</span><span style="color: #f39c12;">
-│   │   │       ├── </span><span style="color: #4cd964;">hellaswag.parquet</span><span style="color: #f39c12;">
-│   │   │       └── </span><span style="color: #4cd964;">other_benchmark_files.parquet</span><span style="color: #f39c12;">
-│   └── </span><span style="color: #4a90e2; font-weight: bold;">other_models/</span><span style="color: #f39c12;">
-└── </span><span style="color: #e74c3c; font-weight: bold;">Dove_Lite/</span><span style="color: #f39c12;">
-    └── </span><span style="color: #e74c3c;">[same structure and examples with reduced metadata per instance]</span></pre>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Versions Section -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3">Versions 📦</h2>
-      <div class="columns is-centered">
-        <!-- Full Version Column -->
-        <div class="column">
-          <div class="box">
-            <h3 class="title is-4">Full Version (4TB)</h3>
-            <div class="content">
-              <ul>
-                <li>Complete token-level probabilities</li>
-                <li>Detailed few-shot examples</li>
-                <li>Comprehensive model behavior analysis</li>
-              </ul>
-              <div class="has-text-centered">
-                <a href="https://huggingface.co/datasets/nlphuji/Dove" class="button is-primary is-outlined mt-4">
-                  <span class="icon">🤗</span>
-                  <span>Download Full Version</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Lite Version Column -->
-        <div class="column">
-          <div class="box">
-            <h3 class="title is-4">Lite Version (200GB)</h3>
-            <div class="content">
-              <ul>
-                <li>Core prompt variations</li>
-                <li>Model responses and Evaluation scores</li>
-                <li>Perfect for quick experimentation</li>
-              </ul>
-              <div class="has-text-centered">
-                <a href="https://huggingface.co/datasets/nlphuji/Dove_Lite" class="button is-primary is-outlined mt-4">
-                  <span class="icon">🤗</span>
-                  <span>Download Lite Version</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
     <!-- Citation Section -->
   <section class="section" id="BibTeX">
