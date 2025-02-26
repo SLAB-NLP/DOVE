@@ -504,23 +504,29 @@
     </div>
   </section>
 
-  <!-- Usage Section -->
+<!-- Usage Section -->
   <section class="section">
     <div class="container is-max-desktop">
       <h2 class="title is-3">Usage</h2>
       <div class="content">
         <h3 class="title is-4">Basic Dataset Loading</h3>
         <pre><code class="language-python">from datasets import load_dataset
-from pathlib import Path
 
-# Load a specific model/language/shots combination
-def load_dove_subset(model_name, language="en", shots=0):
-   base_path = f"nlphuji/Dove/{model_name}/{language}/shots_{shots}"
-   return load_dataset(base_path)
+# Load a specific model/language/shots benchmark
+def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="mmlu.global_facts.parquet"):
+    file_path = f"{model_name}/{language}/{shots}_shot/{benchmark_file}"
+    return load_dataset(repo_id, data_files=file_path, split="train")
 
 # Examples
-llama_en_zero = load_dove_subset("Llama-3.2-1B-Instruct", language="en", shots=0)
-mistral_fr_five = load_dove_subset("Mistral-7B-Instruct-v0.3", language="fr", shots=5)</code></pre>
+# Example 1: Loading from Dove_Lite repository
+llama_en_facts = load_benchmark("nlphuji/Dove_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "mmlu.global_facts.parquet")
+
+# Example 2: Loading from full Dove repository
+mistral_ja_logic = load_benchmark("nlphuji/Dove", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
+
+# Print dataset information
+print(f"Llama Facts: {len(llama_en_facts)} samples")
+print(f"Mistral Logic: {len(mistral_ja_logic)} samples")</code></pre>
       </div>
     </div>
   </section>
