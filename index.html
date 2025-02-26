@@ -519,14 +519,16 @@ def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="
 
 # Examples
 # Example 1: Loading from Dove_Lite repository
-llama_en_facts = load_benchmark("nlphuji/Dove_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
+llama_en_arc_challenge = load_benchmark("nlphuji/Dove_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
 
 # Example 2: Loading from full Dove repository
-mistral_ja_logic = load_benchmark("nlphuji/Dove", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
+mistral_ja_formal_logic = load_benchmark("nlphuji/Dove", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
 
 # Print dataset information
-print(f"Llama Facts: {len(llama_en_facts)} samples")
-print(f"Mistral Logic: {len(mistral_ja_logic)} samples")</code></pre>
+print(f"Dataset loaded successfully:")
+print(f"- Llama (en) arc_challenge: {len(llama_en_arc_challenge)} examples")
+print(f"- Mistral (ja) formal_logic: {len(mistral_ja_formal_logic)} examples")
+        </code></pre>
       </div>
     </div>
   </section>
