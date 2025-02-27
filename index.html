@@ -118,6 +118,60 @@
     color: #8a8a8a !important;  /* אפור */
     font-style: italic;
   }
+
+  /* Make columns wider and equal height */
+  .columns.is-centered {
+    max-width: 2000px;  /* Increased from 1800px to 2000px */
+    margin: 0 auto;
+    padding: 0 2rem;
+    margin-left: -6rem;  /* Increased negative margin from -4rem to -6rem */
+    margin-right: -6rem; /* Increased negative margin from -4rem to -6rem */
+    width: calc(100% + 12rem); /* Adjusted to compensate for larger negative margins */
+  }
+
+  /* Make all boxes in contribution section equal height and wider */
+  .columns.is-centered .box.compact-box {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;   /* Reduced from 2.25rem */
+    width: 100%;
+    min-width: 450px;
+  }
+
+  /* Adjust content padding and margins */
+  .columns.is-centered .box.compact-box .content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    font-size: 1.15em;
+    padding: 0;        /* Remove content padding */
+    margin: 0;         /* Remove content margin */
+  }
+
+  /* Adjust list padding and margins */
+  .columns.is-centered .box.compact-box .content ul {
+    margin: 0;         /* Remove list margin */
+    padding-left: 1.2rem;  /* Reduce left padding of list */
+    padding-right: 0.5rem; /* Add small right padding */
+  }
+
+  /* Adjust list items spacing */
+  .columns.is-centered .box.compact-box .content ul li {
+    margin-bottom: 0.75rem;  /* Reduce space between list items */
+    line-height: 1.4;        /* Tighter line height */
+  }
+
+  /* Adjust title margins */
+  .columns.is-centered .box.compact-box h3.title {
+    margin-bottom: 1rem;     /* Reduce space after title */
+  }
+
+  /* Ensure columns take equal width with more spacing */
+  .columns.is-centered .column {
+    flex: 1;
+    padding: 0.5rem;    /* Reduced padding from 1.5rem to 0.5rem */
+  }
 </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
@@ -360,9 +414,7 @@
             </ul>
             <div class="has-text-centered">
               <a href="https://huggingface.co/datasets/nlphuji/Dove" class="button is-primary is-normal">
-                <span class="icon">
-                  <i class="fas fa-download"></i>
-                </span>
+                <span class="icon">🤗</span>
                 <span>Download Full Version</span>
               </a>
             </div>
@@ -371,7 +423,7 @@
 
         <!-- Lite Version Box -->
         <div class="box">
-          <h3 class="title is-4">Lite Version (200GB)</h3>
+          <h3 class="title is-4">Lite Version (100GB)</h3>
           <div class="content">
             <ul>
               <li>Core prompt variations</li>
@@ -380,9 +432,7 @@
             </ul>
             <div class="has-text-centered">
               <a href="https://huggingface.co/datasets/nlphuji/Dove_Lite" class="button is-primary is-normal">
-                <span class="icon">
-                  <i class="fas fa-download"></i>
-                </span>
+                <span class="icon">🤗</span>
                 <span>Download Lite Version</span>
               </a>
             </div>
@@ -455,57 +505,65 @@
     <!-- Main Call to Action -->
     <div class="has-text-centered mb-6">
       <h2 class="title is-2">🤝 Join Our Community-wide Effort!</h2>
-      <p class="subtitle is-4">Help develop meaningful protocols for systematic LLM evaluation</p>
+      <p class="subtitle is-4">Help improve LLM evaluation</p>
     </div>
 
-    <!-- Two Columns Section - both with nowrap -->
+    <!-- Three Columns Section -->
+<!-- Three Columns Section -->
     <div class="columns is-centered">
-      <!-- First Column - also with nowrap -->
+      <!-- Why Contribute -->
       <div class="column">
-        <div class="box compact-box nowrap-items">
-          <h3 class="title is-4 has-text-centered">Why <span class="highlight-word">Contribute</span>? 🌟</h3>
+        <div class="box compact-box">
+          <h3 class="title is-4 has-text-centered">Why to <span class="highlight-word">Contribute</span>?</h3>
           <div class="content">
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
-              <li class="mb-2">Democratize the systematic study of LLM sensitivity</li>
-              <li class="mb-2">Spur research into meaningful evaluation</li>
-              <li class="mb-2">Enable efficient and generalizable evaluation</li>
-              <li class="mb-2">Join our growing, community-driven resource</li>
+              <li class="mb-2">Improve how we evaluate LLMs</li>
+              <li class="mb-2">Study LLM sensitivity across dimensions</li>
+              <li class="mb-2">Become a co-author on future paper and dataset versions</li>
             </ul>
           </div>
         </div>
       </div>
 
-      <!-- Second Column - with nowrap -->
+      <!-- What to Contribute -->
       <div class="column">
-        <div class="box compact-box nowrap-items">
-          <h3 class="title is-4 has-text-centered">How to <span class="highlight-word">Contribute</span>? 📊</h3>
+        <div class="box compact-box">
+          <h3 class="title is-4 has-text-centered">What to <span class="highlight-word">Contribute</span>?</h3>
           <div class="content">
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
-              <li class="mb-2">Share model predictions across any prompt variation</li>
-              <li class="mb-2">Contribute data from diverse domains and tasks</li>
-              <li class="mb-2">Help expand coverage across languages</li>
-              <li class="mb-2">Explore additional evaluation dimensions</li>
-              <li class="mb-2">Suggest directions for future research</li>
+              <li class="mb-2">Share your model predictions</li>
+              <li class="mb-2">Convert public datasets to DOVE format</li>
+              <li class="mb-2">Run new models/datasets (code available for loading datasets with prompt variations)</li>
+              <li class="mb-2">Request evaluations you're interested in</li>
+              <li class="mb-2">Contribute any model, language, or domain</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- How to Contribute -->
+      <div class="column">
+        <div class="box compact-box">
+          <h3 class="title is-4 has-text-centered">How to <span class="highlight-word">Contribute</span>?</h3>
+          <div class="content">
+            <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
+              <li class="mb-2">Talk to us about your data</li>
+              <li class="mb-2">Follow our <a href="https://arxiv.org/pdf/XXXX.XXXXX.pdf#page=20" class="has-text-info">schema</a></li>
+              <li class="mb-2">Share via email or direct pull request to HuggingFace</li>
             </ul>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Combined Info Box -->
-    <div class="box mt-6">
-      <p class="has-text-centered is-size-5 mb-4">Contributors who provide significant data will be invited as co-authors on the next version of both the paper and dataset.</p>
-      <p class="has-text-centered info-footer">Your data doesn't need to include every field in our <a href="https://arxiv.org/pdf/XXXX.XXXXX.pdf#page=20" class="has-text-info">Dataset Scheme</a>, but should demonstrate systematic evaluation by including model predictions with variations in at least one dimension (for example, without model's log probabilities).</p>
-
-      <!-- Single Call-to-Action Button -->
-      <div class="has-text-centered mt-5">
-        <a href="mailto:eliyahaba@mail.huji.ac.il" class="button is-primary is-medium">
-          <span class="icon">
-            <i class="fas fa-paper-plane"></i>
-          </span>
-          <span>Share Your Data</span>
-        </a>
-      </div>
+    <!-- Contact Button -->
+    <div class="has-text-centered mt-5">
+      <a href="mailto:eliyahaba@mail.huji.ac.il" class="button is-primary is-medium">
+        <span class="icon">
+          <i class="fas fa-paper-plane"></i>
+        </span>
+        <span>Contact Us</span>
+      </a>
     </div>
   </div>
 </section>
@@ -530,8 +588,12 @@
 }
 </style>
 
+  <!-- Spacer Section -->
+  <section class="section" style="background-color: #f5f5f5; padding: 2rem;">
+  </section>
+
   <!-- About Section -->
-  <section class="section hero is-light">
+  <section class="section">
     <div class="container is-max-desktop">
       <h2 class="title is-3">Abstract</h2>
       <div class="content">
@@ -550,19 +612,24 @@
       </div>
     </div>
   </section>
-<!-- Updated Usage Section with Better Structure and Titles -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3">Using DOVE</h2>
 
-    <!-- First Section: Dataset Structure (Previously after Basic Dataset Loading) -->
-    <div class="content">
-      <h3 class="title is-4">📁 Dataset Structure</h3>
-      <div class="code-container">
-        <div class="code-header">
-          <span>Repository Organization</span>
-        </div>
-        <pre style="background-color: #282c34; padding: 1em; border-radius: 6px; line-height: 1.5; font-family: 'Courier New', monospace; margin-top: 0 !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important;"><span style="color: #f39c12;">nlphuji/
+  <!-- Spacer Section -->
+  <section class="section" style="background-color: #f5f5f5; padding: 2rem;">
+  </section>
+
+  <!-- Usage Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Using DOVE</h2>
+
+      <!-- First Section: Dataset Structure (Previously after Basic Dataset Loading) -->
+      <div class="content">
+        <h3 class="title is-4">📁 Dataset Structure</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Repository Organization</span>
+          </div>
+          <pre style="background-color: #282c34; padding: 1em; border-radius: 6px; line-height: 1.5; font-family: 'Courier New', monospace; margin-top: 0 !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important;"><span style="color: #f39c12;">nlphuji/
 ├── </span><span style="color: #9b59b6; font-weight: bold;">Dove/</span><span style="color: #f39c12;">
 │   ├── </span><span style="color: #4a90e2; font-weight: bold;">model_name/</span><span style="color: #8a8a8a; font-style: italic;"> # e.g., "Llama-3.2-1B-Instruct"</span><span style="color: #f39c12;">
 │   │   ├── </span><span style="color: #4a90e2; font-weight: bold;">language/</span><span style="color: #8a8a8a; font-style: italic;"> # e.g., "en", "fr"</span><span style="color: #f39c12;">
@@ -575,14 +642,14 @@
 │   └── </span><span style="color: #4a90e2; font-weight: bold;">other_models/</span><span style="color: #f39c12;">
 └── </span><span style="color: #e74c3c; font-weight: bold;">Dove_Lite/</span><span style="color: #f39c12;">
     └── </span><span style="color: #e74c3c;">[same structure and examples with reduced metadata per instance]</span></pre>
+        </div>
       </div>
-    </div>
 
-    <!-- Second Section: Loading Code (Previously Basic Dataset Loading) -->
-    <div class="content" style="margin-top: 2.5rem;">
-      <h3 class="title is-4">💻 Code Examples</h3>
-      <p class="subtitle is-6">Load specific benchmarks from the dataset using HuggingFace's Datasets library</p>
-      <pre><code class="language-python">from datasets import load_dataset
+      <!-- Second Section: Loading Code (Previously Basic Dataset Loading) -->
+      <div class="content" style="margin-top: 2.5rem;">
+        <h3 class="title is-4">💻 Code Examples</h3>
+        <p class="subtitle is-6">Load specific benchmarks from the dataset using HuggingFace's Datasets library</p>
+        <pre><code class="language-python">from datasets import load_dataset
 
 # Load a specific model/language/shots benchmark
 def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="mmlu.global_facts.parquet"):
@@ -603,32 +670,35 @@ print(f"- Mistral (ja) formal_logic: {len(mistral_ja_formal_logic)} examples")
 </code></pre>
 
 
-    <!-- Citation Section -->
-  <section class="section" id="BibTeX">
-    <div class="container is-max-desktop content">
-      <h2 class="title">Citation</h2>
-      <pre><code class="language-bibtex">@article{dove2025,
+      <!-- Citation Section -->
+    <section class="section" id="BibTeX">
+      <div class="container is-max-desktop content">
+        <h2 class="title">Citation</h2>
+        <pre><code class="language-bibtex">@article{dove2025,
  title={DOVE: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful LLM Evaluation},
  author={Anonymous},
  journal={arXiv preprint arXiv:XXXX.XXXXX},
  year={2025}
 }</code></pre>
-    </div>
-  </section>
-
-
-  <!-- License Section -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3">License</h2>
-      <div class="content">
-        <p>
-          This dataset is licensed under the <strong>Computational Data License Agreement v2 (CDLAv2)</strong>. For full license terms, see:
-          <a href="https://cdla.dev/permissive-2.0/" target="_blank">https://cdla.dev/permissive-2.0/</a>
-        </p>
       </div>
-    </div>
-  </section>
+    </section>
+
+
+    <!-- License Section -->
+    <section class="section">
+      <div class="container is-max-desktop">
+        <h2 class="title is-3">License</h2>
+        <div class="content">
+          <p>
+            This dataset is licensed under the <strong>Computational Data License Agreement v2 (CDLAv2)</strong>. For full license terms, see:
+            <a href="https://cdla.dev/permissive-2.0/" target="_blank">https://cdla.dev/permissive-2.0/</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</section>
 
 </body>
 </html>
