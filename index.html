@@ -156,7 +156,7 @@
     flex-direction: column;
     padding: 1.5rem;   /* Reduced from 2.25rem */
     width: 100%;
-    min-width: 450px;
+    min-width: 470px;
   }
 
   /* Adjust content padding and margins */
@@ -172,8 +172,8 @@
   /* Adjust list padding and margins */
   .columns.is-centered .box.compact-box .content ul {
     margin: 0;         /* Remove list margin */
-    padding-left: 1.2rem;  /* Reduce left padding of list */
-    padding-right: 0.5rem; /* Add small right padding */
+    padding-left: 0.8rem;  /* Reduce left padding of list */
+    padding-right: 0.2rem; /* Add small right padding */
   }
 
   /* Adjust list items spacing */
@@ -463,6 +463,28 @@
   </div>
 </section>
 
+
+ <section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered mb-3">
+      <h2 class="title is-5">DOVE Creation Process</h2>
+    </div>
+
+    <div class="has-text-centered">
+      <img src="static/images/dove-process.png" alt="DOVE Creation Process" style="max-width: 800px; width: 100%; margin: 0 auto;">
+
+<!--      <p class="has-text-centered" style="margin-top: 1.5rem; font-size: 1.1em; font-weight: 400;">-->
+<!--        <strong>DOVE Creation Process:</strong> Our dataset construction methodology involves collecting diverse instances,-->
+<!--        applying thousands of prompt variations, generating responses from multiple LLMs, and thoroughly evaluating the results.-->
+<!--      </p>-->
+    </div>
+  </div>
+</section>
+
+ <section class="section" style="background-color: #f5f5f5; padding: 2rem;">
+</section>
+
+
 <style>
   /* Hide control bar when video is not in focus */
   video::-webkit-media-controls-panel {
@@ -567,7 +589,7 @@
           <h3 class="title is-4 has-text-centered">How to <span class="highlight-word">Contribute</span>?</h3>
           <div class="content">
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
-              <li class="mb-2">Talk to us about your data</li>
+              <li class="mb-2"><a href="mailto:eliyahaba@mail.huji.ac.il" class="has-text-info">Talk to us</a> about your data</li>
               <li class="mb-2">Convert your data to DOVE <a href="https://github.com/SLAB-NLP/DOVE/blob/main/src/schema_validation/schema.json" class="has-text-info">schema</a></li>
               <li class="mb-2">Validate your format with our <a href="https://github.com/SLAB-NLP/DOVE/blob/main/src/schema_validation/schema_validator.py" class="has-text-info">validation code</a></li>
               <li class="mb-2">Share via email or direct pull request to HuggingFace</li>
@@ -583,7 +605,7 @@
         <span class="icon">
           <i class="fas fa-paper-plane"></i>
         </span>
-        <span>Contact Us</span>
+        <span>Contact</span>
       </a>
     </div>
   </div>
