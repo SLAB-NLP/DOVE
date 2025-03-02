@@ -17,7 +17,7 @@ DOVE consists of more than 300M prompt perturbations and model outputs, which we
 
 ## Dataset Access
 
-Browse the data: [https://huggingface.co/datasets/DOVevaluation/Dove](https://huggingface.co/datasets/DOVevaluation/Dove)
+Browse the data: [https://huggingface.co/datasets/nlphuji/Dove](https://huggingface.co/datasets/nlphuji/Dove)
 
 ## Usage
 
