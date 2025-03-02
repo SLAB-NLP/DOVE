@@ -129,7 +129,7 @@
             "properties": {
                 "prompt_class": {
                     "type": "string",
-                    "description": "Type of prompt template and its formatting requirements",
+                    "description": "Type of task and its formatting requirements",
                     "enum": ["MultipleChoice", "OpenEnded", "Completion"]
                 },
                 "dimensions": {
