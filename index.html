@@ -6,7 +6,7 @@
   <meta name="description" content="DOVE: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful LLM Evaluation" />
   <meta property="og:title" content="🕊️ DOVE: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful LLM Evaluation" />
   <meta property="og:description" content="A dataset for studying LLM sensitivity and evaluation methodology with 300M model predictions across various prompt variations." />
-  <meta property="og:url" content="https://doveevaluation.github.io/" />
+  <meta property="og:url" content="https://slab-nlp.github.io/DOVE/" />
   <!-- Replace with your banner image -->
   <meta property="og:image" content="static/image/your_banner_image.png" />
   <meta property="og:image:width" content="1200"/>
@@ -183,7 +183,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
 <script>
-  // הגדרת שפה מותאמת אישית עבור עץ תיקיות
+  // Define custom language for directory tree
   hljs.registerLanguage('tree', function(hljs) {
     return {
       name: 'Directory Tree',
@@ -208,14 +208,14 @@
     };
   });
 
-  // קודם כל נפעיל את highlight.js על כל בלוקי הקוד
+  // First, activate highlight.js on all code blocks
   document.addEventListener('DOMContentLoaded', (event) => {
     document.querySelectorAll('pre code').forEach((block) => {
       hljs.highlightElement(block);
     });
   });
 
-  // אחר כך נוסיף את המלבנים והכפתורים
+  // Then add the boxes and buttons
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('pre code').forEach((codeBlock) => {
       const languageClass = codeBlock.className.split(' ').find(cls => cls.startsWith('language-')) || '';
@@ -227,7 +227,7 @@
       else if (language === 'bibtex') displayLang = 'BibTeX';
       else if (language === 'tree') {
         displayLang = 'Dataset Structure';
-        // לא מוסיף כפתור העתקה לעץ התיקיות
+        // Don't add copy button for directory tree
         const codeContainer = document.createElement('div');
         codeContainer.className = 'code-container';
 
@@ -548,7 +548,8 @@
           <div class="content">
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
               <li class="mb-2">Talk to us about your data</li>
-              <li class="mb-2">Follow our <a href="https://arxiv.org/pdf/XXXX.XXXXX.pdf#page=20" class="has-text-info">schema</a></li>
+              <li class="mb-2">Convert your data to our <a href="https://arxiv.org/pdf/XXXX.XXXXX.pdf#page=20" class="has-text-info">schema</a></li>
+              <li class="mb-2">Validate your format with our <a href="https://github.com/SLAB-NLP/DOVE/blob/main/validation_tools.py" class="has-text-info">validation tool</a></li>
               <li class="mb-2">Share via email or direct pull request to HuggingFace</li>
             </ul>
           </div>
