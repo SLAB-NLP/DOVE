@@ -17,7 +17,7 @@ DOVE consists of more than 300M prompt perturbations and model outputs, which we
 
 ## Dataset Access
 
-Browse the data: [https://huggingface.co/datasets/DOVevaluation/Dove](https://huggingface.co/datasets/DOVevaluation/Dove)
+Browse the data: [https://huggingface.co/datasets/nlphuji/Dove](https://huggingface.co/datasets/nlphuji/Dove)
 
 ## Usage
 
@@ -55,14 +55,14 @@ nlphuji/
 
 ## Versions
 
-### Full Version (4TB)
+### Full Version (2TB)
 - Complete token-level probabilities
 - Detailed few-shot examples
 - Comprehensive model behavior analysis
 
 [Download Full Version](https://huggingface.co/datasets/nlphuji/Dove)
 
-### Lite Version (200GB)
+### Lite Version (100GB)
 - Core prompt variations
 - Model responses and Evaluation scores
 - Perfect for quick experimentation
