@@ -55,14 +55,14 @@ nlphuji/
 
 ## Versions
 
-### Full Version (4TB)
+### Full Version (2TB)
 - Complete token-level probabilities
 - Detailed few-shot examples
 - Comprehensive model behavior analysis
 
 [Download Full Version](https://huggingface.co/datasets/nlphuji/Dove)
 
-### Lite Version (200GB)
+### Lite Version (100GB)
 - Core prompt variations
 - Model responses and Evaluation scores
 - Perfect for quick experimentation
