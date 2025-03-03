@@ -154,9 +154,12 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;   /* Reduced from 2.25rem */
+    padding: 1.5rem;
     width: 100%;
-    min-width: 470px;
+    min-width: 443px;  /* Set to match the middle box width */
+    max-width: 443px;  /* Set to match the middle box width */
+    min-height: 380px; /* Increased to match the tallest box */
+    margin: 0 auto;
   }
 
   /* Adjust content padding and margins */
@@ -165,21 +168,26 @@
     display: flex;
     flex-direction: column;
     font-size: 1.15em;
-    padding: 0;        /* Remove content padding */
-    margin: 0;         /* Remove content margin */
+    padding: 0;
+    margin: 0;
+    height: 100%;    /* Added to ensure content fills box height */
   }
 
   /* Adjust list padding and margins */
   .columns.is-centered .box.compact-box .content ul {
-    margin: 0;         /* Remove list margin */
-    padding-left: 0.8rem;  /* Reduce left padding of list */
-    padding-right: 0.2rem; /* Add small right padding */
+    margin: 0;
+    padding-left: 0.8rem;
+    padding-right: 0.2rem;
+    flex-grow: 1;    /* Added to make list fill available space */
+    display: flex;    /* Added for vertical distribution */
+    flex-direction: column;  /* Added for vertical distribution */
+    justify-content: space-between;  /* Added to distribute items */
   }
 
   /* Adjust list items spacing */
   .columns.is-centered .box.compact-box .content ul li {
-    margin-bottom: 0.75rem;  /* Reduce space between list items */
-    line-height: 1.4;        /* Tighter line height */
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
   }
 
   /* Adjust title margins */
@@ -187,10 +195,62 @@
     margin-bottom: 1rem;     /* Reduce space after title */
   }
 
-  /* Ensure columns take equal width with more spacing */
+  /* Ensure all columns have same height */
   .columns.is-centered .column {
-    flex: 1;
-    padding: 0.5rem;    /* Reduced padding from 1.5rem to 0.5rem */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  /* Adjust nested list spacing */
+  .columns.is-centered .box.compact-box .content ul ul {
+    margin-bottom: 0.25rem !important;  /* Reduced from 0.5rem */
+    margin-top: 0.25rem !important;
+  }
+
+  /* Adjust nested list items spacing */
+  .columns.is-centered .box.compact-box .content ul ul li {
+    margin-bottom: 0.25rem;  /* Reduced from 0.75rem */
+    line-height: 1.3;       /* Reduced from 1.4 */
+    font-size: 0.95em;      /* Slightly smaller font for nested items */
+  }
+
+  /* Adjust spacing after list item with nested list */
+  .columns.is-centered .box.compact-box .content ul li:has(> ul) {
+    margin-bottom: 0.25rem;  /* Reduced space after parent list item */
+  }
+
+  /* Specific width for "Why Contribute" box */
+  .columns.is-centered .column:first-child .box.compact-box {
+    min-width: 400px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* Specific width for "How to Contribute" box */
+  .columns.is-centered .column:last-child .box.compact-box {
+    min-width: 400px;  /* Increased from 480px to 520px */
+    max-width: 400px;  /* Increased max-width to match */
+    margin: 0 auto;
+  }
+
+  /* Default width for middle box */
+  .columns.is-centered .column:not(:first-child):not(:last-child) .box.compact-box {
+    min-width: 443px;
+    max-width: 443px;
+    margin: 0 auto;
+  }
+
+  /* Specific spacing for "Why Contribute" box */
+  .columns.is-centered .column:first-child .box.compact-box .content ul li {
+    margin-bottom: 0.4rem;  /* Reduced from 0.75rem */
+    line-height: 1.3;      /* Reduced from 1.4 */
+  }
+
+  /* Adjust content distribution in "Why Contribute" box */
+  .columns.is-centered .column:first-child .box.compact-box .content ul {
+    justify-content: flex-start;  /* Changed from space-between */
+    gap: 0.4rem;                  /* Added consistent gap between items */
   }
 </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -589,9 +649,13 @@
           <h3 class="title is-4 has-text-centered">How to <span class="highlight-word">Contribute</span>?</h3>
           <div class="content">
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
-              <li class="mb-2"><a href="mailto:eliyahaba@mail.huji.ac.il" class="has-text-info">Talk to us</a> about your data</li>
-              <li class="mb-2">Convert your data to DOVE <a href="https://github.com/SLAB-NLP/DOVE/blob/main/src/schema_validation/schema.json" class="has-text-info">schema</a></li>
-              <li class="mb-2">Validate your format with our <a href="https://github.com/SLAB-NLP/DOVE/blob/main/src/schema_validation/schema_validator.py" class="has-text-info">validation code</a></li>
+              <li class="mb-2"><a href="mailto:eliyahaba@mail.huji.ac.il" class="has-text-info">Talk to us</a> about:
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                  <li>Your data you'd like to contribute</li>
+                  <li>Request evaluations you're interested in seeing added to DOVE</li>
+                </ul>
+              </li>
+              <li class="mb-2">Convert your data to DOVE <a href="https://github.com/SLAB-NLP/DOVE/blob/main/src/schema_validation/schema.json" class="has-text-info">schema</a> and validate it with our <a href="https://github.com/SLAB-NLP/DOVE/blob/main/src/schema_validation/schema_validator.py" class="has-text-info">validation code</a></li>
               <li class="mb-2">Share via email or direct pull request to <a href="https://huggingface.co/datasets/nlphuji/DOVE" class="has-text-info">HuggingFace</a></li>
             </ul>
           </div>
