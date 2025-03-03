@@ -3,7 +3,7 @@
 DOVE is a large-scale dataset containing prompt perturbations of various evaluation benchmarks designed to study LLM sensitivity from a holistic perspective.
 
 [![Paper](https://img.shields.io/badge/arxiv-paper-red)](https://arxiv.org/abs/XXXX.XXXXX)
-[![Dataset](https://img.shields.io/badge/🤗-dataset-yellow)](https://huggingface.co/datasets/nlphuji/Dove)
+[![Dataset](https://img.shields.io/badge/🤗-dataset-yellow)](https://huggingface.co/datasets/nlphuji/DOVE)
 [![Website](https://img.shields.io/badge/🌐-website-blue)](https://slab-nlp.github.io/DOVE/)
 [![Contact](https://img.shields.io/badge/📧-contact-green)](mailto:eliyahaba@mail.huji.ac.il)
 
@@ -17,7 +17,7 @@ DOVE consists of more than 250M prompt perturbations and model outputs, which we
 
 ## Dataset Access
 
-Browse the data: [https://huggingface.co/datasets/nlphuji/Dove](https://huggingface.co/datasets/nlphuji/Dove)
+Browse the data: [https://huggingface.co/datasets/nlphuji/DOVE](https://huggingface.co/datasets/nlphuji/DOVE)
 
 ## Usage
 
@@ -31,10 +31,10 @@ def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="
 
 # Examples
 # Example 1: Loading from Dove_Lite repository
-llama_en_arc_challenge = load_benchmark("nlphuji/Dove_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
+llama_en_arc_challenge = load_benchmark("nlphuji/DOVE_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
 
 # Example 2: Loading from full Dove repository
-mistral_ja_formal_logic = load_benchmark("nlphuji/Dove", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
+mistral_ja_formal_logic = load_benchmark("nlphuji/DOVE", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
 
 # Print dataset information
 print(f"Dataset loaded successfully:")
@@ -67,14 +67,14 @@ nlphuji/
 - Detailed few-shot examples
 - Comprehensive model behavior analysis
 
-[Download Full Version](https://huggingface.co/datasets/nlphuji/Dove)
+[Download Full Version](https://huggingface.co/datasets/nlphuji/DOVE)
 
 ### Lite Version (100GB)
 - Core prompt variations
 - Model responses and Evaluation scores
 - Perfect for quick experimentation
 
-[Download Lite Version](https://huggingface.co/datasets/nlphuji/Dove_Lite)
+[Download Lite Version](https://huggingface.co/datasets/nlphuji/DOVE_Lite)
 
 ## Contribute to DOVE
 
