@@ -351,7 +351,7 @@
               </span>
               <!-- Dataset link -->
               <span class="link-block">
-                <a href="https://huggingface.co/datasets/nlphuji/Dove" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                <a href="https://huggingface.co/datasets/nlphuji/DOVE" target="_blank" class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">🤗</span>
                   <span>Dataset</span>
                 </a>
@@ -433,7 +433,7 @@
               <li>Comprehensive model behavior analysis</li>
             </ul>
             <div class="has-text-centered">
-              <a href="https://huggingface.co/datasets/nlphuji/Dove" class="button is-primary is-normal">
+              <a href="https://huggingface.co/datasets/nlphuji/DOVE" class="button is-primary is-normal">
                 <span class="icon">🤗</span>
                 <span>Full Version</span>
               </a>
@@ -451,7 +451,7 @@
               <li>Perfect for quick experimentation</li>
             </ul>
             <div class="has-text-centered">
-              <a href="https://huggingface.co/datasets/nlphuji/Dove_Lite" class="button is-primary is-normal">
+              <a href="https://huggingface.co/datasets/nlphuji/DOVE_Lite" class="button is-primary is-normal">
                 <span class="icon">🤗</span>
                 <span>Lite Version</span>
               </a>
@@ -592,7 +592,7 @@
               <li class="mb-2"><a href="mailto:eliyahaba@mail.huji.ac.il" class="has-text-info">Talk to us</a> about your data</li>
               <li class="mb-2">Convert your data to DOVE <a href="https://github.com/SLAB-NLP/DOVE/blob/main/src/schema_validation/schema.json" class="has-text-info">schema</a></li>
               <li class="mb-2">Validate your format with our <a href="https://github.com/SLAB-NLP/DOVE/blob/main/src/schema_validation/schema_validator.py" class="has-text-info">validation code</a></li>
-              <li class="mb-2">Share via email or direct pull request to <a href="https://huggingface.co/datasets/nlphuji/Dove" class="has-text-info">HuggingFace</a></li>
+              <li class="mb-2">Share via email or direct pull request to <a href="https://huggingface.co/datasets/nlphuji/DOVE" class="has-text-info">HuggingFace</a></li>
             </ul>
           </div>
         </div>
@@ -650,7 +650,7 @@
           DOVE consists of more than 250M prompt perturbations and model outputs, which we make publicly available to spur a community-wide effort toward meaningful, robust, and efficient evaluation.
         </p>
         <p>
-          Browse the data: <a href="https://huggingface.co/datasets/nlphuji/Dove" target="_blank">https://huggingface.co/datasets/nlphuji/Dove</a>
+          Browse the data: <a href="https://huggingface.co/datasets/nlphuji/DOVE" target="_blank">https://huggingface.co/datasets/nlphuji/DOVE</a>
         </p>
       </div>
     </div>
@@ -701,10 +701,10 @@ def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="
 
 # Examples
 # Example 1: Loading from Dove_Lite repository
-llama_en_arc_challenge = load_benchmark("nlphuji/Dove_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
+llama_en_arc_challenge = load_benchmark("nlphuji/DOVE_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
 
 # Example 2: Loading from full Dove repository
-mistral_ja_formal_logic = load_benchmark("nlphuji/Dove", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
+mistral_ja_formal_logic = load_benchmark("nlphuji/DOVE", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
 
 # Print dataset information
 print(f"Dataset loaded successfully:")
