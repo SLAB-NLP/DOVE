@@ -23,16 +23,23 @@ Browse the data: [https://huggingface.co/datasets/nlphuji/Dove](https://huggingf
 
 ```python
 from datasets import load_dataset
-from pathlib import Path
 
-# Load a specific model/language/shots combination
-def load_dove_subset(model_name, language="en", shots=0):
-   base_path = f"nlphuji/Dove/{model_name}/{language}/shots_{shots}"
-   return load_dataset(base_path)
+# Load a specific model/language/shots benchmark
+def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="mmlu.global_facts.parquet"):
+    file_path = f"{model_name}/{language}/{shots}_shot/{benchmark_file}"
+    return load_dataset(repo_id, data_files=file_path, split="train")
 
 # Examples
-llama_en_zero = load_dove_subset("Llama-3.2-1B-Instruct", language="en", shots=0)
-mistral_fr_five = load_dove_subset("Mistral-7B-Instruct-v0.3", language="fr", shots=5)
+# Example 1: Loading from Dove_Lite repository
+llama_en_arc_challenge = load_benchmark("nlphuji/Dove_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
+
+# Example 2: Loading from full Dove repository
+mistral_ja_formal_logic = load_benchmark("nlphuji/Dove", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
+
+# Print dataset information
+print(f"Dataset loaded successfully:")
+print(f"- Llama (en) arc_challenge: {len(llama_en_arc_challenge)} examples")
+print(f"- Mistral (ja) formal_logic: {len(mistral_ja_formal_logic)} examples")
 ```
 
 ## Dataset Structure
