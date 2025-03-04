@@ -2,7 +2,7 @@
 
 DOVE is a large-scale dataset containing prompt perturbations of various evaluation benchmarks designed to study LLM sensitivity from a holistic perspective.
 
-[![Paper](https://img.shields.io/badge/arxiv-paper-red)](https://arxiv.org/abs/XXXX.XXXXX)
+[![Paper](https://img.shields.io/badge/arxiv-paper-red)](https://arxiv.org/abs/2503.01622)
 [![Dataset](https://img.shields.io/badge/🤗-dataset-yellow)](https://huggingface.co/datasets/nlphuji/DOVE)
 [![Website](https://img.shields.io/badge/🌐-website-blue)](https://slab-nlp.github.io/DOVE/)
 [![Contact](https://img.shields.io/badge/📧-contact-green)](mailto:eliyahaba@mail.huji.ac.il)
@@ -102,11 +102,14 @@ To share your data, contact: [eliyahaba@mail.huji.ac.il](mailto:eliyahaba@mail.h
 ## Citation
 
 ```bibtex
-@article{dove2025,
- title={DOVE: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful LLM Evaluation},
- author={Anonymous},
- journal={arXiv preprint arXiv:XXXX.XXXXX},
- year={2025}
+@misc{habba2025dovelargescalemultidimensionalpredictions,
+      title={DOVE: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful LLM Evaluation}, 
+      author={Eliya Habba and Ofir Arviv and Itay Itzhak and Yotam Perlitz and Elron Bandel and Leshem Choshen and Michal Shmueli-Scheuer and Gabriel Stanovsky},
+      year={2025},
+      eprint={2503.01622},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2503.01622}, 
 }
 ```
 
