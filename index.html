@@ -154,9 +154,9 @@
     flex-direction: column;
     padding: 1.5rem;
     width: 100%;
-    min-width: 443px;  /* Set to match the middle box width */
-    max-width: 443px;  /* Set to match the middle box width */
-    min-height: 380px; /* Increased to match the tallest box */
+    min-width: 443px;
+    max-width: 443px;
+    min-height: 320px;  /* Reduced from 380px to 320px */
     margin: 0 auto;
   }
 
@@ -184,8 +184,8 @@
 
   /* Adjust list items spacing */
   .columns.is-centered .box.compact-box .content ul li {
-    margin-bottom: 0.75rem;
-    line-height: 1.4;
+    margin-bottom: 0.3rem;  /* Reduced from 0.75rem */
+    line-height: 1.2;      /* Reduced from 1.4 */
   }
 
   /* Adjust title margins */
@@ -208,14 +208,25 @@
 
   /* Adjust nested list items spacing */
   .columns.is-centered .box.compact-box .content ul ul li {
-    margin-bottom: 0.25rem;  /* Reduced from 0.75rem */
-    line-height: 1.3;       /* Reduced from 1.4 */
-    font-size: 0.95em;      /* Slightly smaller font for nested items */
+    margin-bottom: 0.2rem;  /* Reduced from 0.25rem */
+    line-height: 1.2;      /* Reduced from 1.3 */
+    font-size: 0.95em;
   }
 
   /* Adjust spacing after list item with nested list */
   .columns.is-centered .box.compact-box .content ul li:has(> ul) {
     margin-bottom: 0.25rem;  /* Reduced space after parent list item */
+  }
+
+  /* Remove extra margin from last items */
+  .columns.is-centered .box.compact-box .content ul li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Adjust content distribution in all boxes */
+  .columns.is-centered .box.compact-box .content ul {
+    justify-content: flex-start;  /* Changed from space-between */
+    gap: 0.3rem;                 /* Added consistent small gap */
   }
 
   /* Specific width for "Why Contribute" box */
@@ -243,12 +254,6 @@
   .columns.is-centered .column:first-child .box.compact-box .content ul li {
     margin-bottom: 0.4rem;  /* Reduced from 0.75rem */
     line-height: 1.3;      /* Reduced from 1.4 */
-  }
-
-  /* Adjust content distribution in "Why Contribute" box */
-  .columns.is-centered .column:first-child .box.compact-box .content ul {
-    justify-content: flex-start;  /* Changed from space-between */
-    gap: 0.4rem;                  /* Added consistent gap between items */
   }
 </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -619,7 +624,7 @@
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
               <li class="mb-2">Improve how we evaluate LLMs</li>
               <li class="mb-2">Advance research on LLM sensitivity</li>
-              <li class="mb-2">Become a co-author on future paper and dataset versions</li>
+              <li class="mb-2">Become a <strong>co-author</strong> on future paper and dataset versions</li>
             </ul>
           </div>
         </div>
@@ -647,9 +652,9 @@
           <h3 class="title is-4 has-text-centered">How to <span class="highlight-word">Contribute</span>?</h3>
           <div class="content">
             <ul class="has-text-weight-medium" style="margin-top: 0.5rem;">
-              <li class="mb-2"><a href="mailto:eliyahaba@mail.huji.ac.il" class="has-text-info">Talk to us</a> about:
+              <li class="mb-2"><a href="mailto:eliyahaba@mail.huji.ac.il" class="has-text-info">Talk with us!</a>
                 <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
-                  <li>Your data you'd like to contribute</li>
+                  <li>Data you'd like to contribute</li>
                   <li>Request evaluations you're interested in seeing added to DOVE</li>
                 </ul>
               </li>
@@ -766,12 +771,12 @@ def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="
 llama_en_arc_challenge = load_benchmark("nlphuji/DOVE_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
 
 # Example 2: Loading from full Dove repository
-mistral_ja_formal_logic = load_benchmark("nlphuji/DOVE", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
+mistral_ja_formal_logic = load_benchmark("nlphuji/DOVE", "Mistral-7B-Instruct-v0.3", "en", 5, "mmlu.formal_logic.parquet")
 
 # Print dataset information
 print(f"Dataset loaded successfully:")
 print(f"- Llama (en) arc_challenge: {len(llama_en_arc_challenge)} examples")
-print(f"- Mistral (ja) formal_logic: {len(mistral_ja_formal_logic)} examples")
+print(f"- Mistral (en) formal_logic: {len(mistral_en_formal_logic)} examples")
 </code></pre>
 
 

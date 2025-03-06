@@ -34,12 +34,12 @@ def load_benchmark(repo_id, model_name, language="en", shots=0, benchmark_file="
 llama_en_arc_challenge = load_benchmark("nlphuji/DOVE_Lite", "Meta-Llama-3-8B-Instruct", "en", 0, "ai2_arc.arc_challenge.parquet")
 
 # Example 2: Loading from full Dove repository
-mistral_ja_formal_logic = load_benchmark("nlphuji/DOVE", "Mistral-7B-Instruct-v0.3", "ja", 5, "global_mmlu.ja.formal_logic.parquet")
+mistral_ja_formal_logic = load_benchmark("nlphuji/DOVE", "Mistral-7B-Instruct-v0.3", "en", 5, "mmlu.formal_logic.parquet")
 
 # Print dataset information
 print(f"Dataset loaded successfully:")
 print(f"- Llama (en) arc_challenge: {len(llama_en_arc_challenge)} examples")
-print(f"- Mistral (ja) formal_logic: {len(mistral_ja_formal_logic)} examples")
+print(f"- Mistral (en) formal_logic: {len(mistral_en_formal_logic)} examples")
 ```
 
 ## Dataset Structure
