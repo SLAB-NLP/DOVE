@@ -2,10 +2,22 @@ import json
 from pathlib import Path
 from typing import Dict, Tuple, Union, Optional, Any
 
+import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 from jsonschema import validate, ValidationError
 from tqdm import tqdm
+
+
+def recursive_convert(value):
+    if isinstance(value, np.ndarray):
+        return recursive_convert(value.tolist())
+    elif isinstance(value, list):
+        return [recursive_convert(v) for v in value]
+    elif isinstance(value, dict):
+        return {k: recursive_convert(v) for k, v in value.items()}
+    else:
+        return value
 
 
 class SchemaValidator:
@@ -137,7 +149,7 @@ class SchemaValidator:
                 record = {}
                 for key in self.schema.get('properties', {}):
                     if key in row:
-                        record[key] = row[key]
+                        record[key] = recursive_convert(row[key])
 
                 validate(instance=record, schema=self.schema)
                 valid_count += 1
