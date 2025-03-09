@@ -1,0 +1,21 @@
+{
+    "__type__": "multiple_choice_template",
+    "input_format": "Below are multiple-choice questions related to {topic}. Please provide the correct answer for each question.\n\nQuestion: {question}\nChoices: {choices}\nAnswer:",
+    "choices_field": "choices",
+    "target_field": "answer",
+    "choices_separator": "\n",
+    "enumerator": "numbers",
+    "source_choice_format": "{choice_numeral}. {choice_text}",
+    "target_choice_format": "{choice_numeral}. {choice_text}",
+    "postprocessors": [
+        "processors.to_string_stripped",
+        "processors.take_first_non_empty_line",
+        "processors.match_closest_option"
+    ],
+    "shuffle_choices": false,
+    "shuffle_choices_seed": null,
+    "sort_choices_by_length": false,
+    "sort_choices_alphabetically": false,
+    "reverse_choices": false,
+    "place_correct_choice_position": 0
+}

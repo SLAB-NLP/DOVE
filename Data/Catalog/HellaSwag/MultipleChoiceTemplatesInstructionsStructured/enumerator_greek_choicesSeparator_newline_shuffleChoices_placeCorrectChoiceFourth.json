@@ -1,0 +1,21 @@
+{
+    "__type__": "multiple_choice_template",
+    "input_format": "Context: [context] Choices: [choices] Answer: [answer]\nContext: {context} Choices:\n{choices}\nAnswer:",
+    "choices_field": "choices",
+    "target_field": "answer",
+    "choices_separator": "\n",
+    "enumerator": "αβγδεζηθικ",
+    "source_choice_format": "{choice_numeral}. {choice_text}",
+    "target_choice_format": "{choice_numeral}. {choice_text}",
+    "postprocessors": [
+        "processors.to_string_stripped",
+        "processors.take_first_non_empty_line",
+        "processors.match_closest_option"
+    ],
+    "shuffle_choices": false,
+    "shuffle_choices_seed": null,
+    "sort_choices_by_length": false,
+    "sort_choices_alphabetically": false,
+    "reverse_choices": false,
+    "place_correct_choice_position": -1
+}
