@@ -727,12 +727,20 @@
   <section class="section" style="background-color: #f5f5f5; padding: 2rem;">
   </section>
 
-  <!-- Usage Section -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3">Using DOVE</h2>
+<!-- Usage Section -->
+<section class="section">
+  <div class="container is-max-desktop">
+      <div class="notification is-info is-light">
+        <p><strong>Note:</strong> Load individual benchmark files (just a few MB each) instead of the full 100GB/2TB dataset!</p>
+      </div>
+    <h2 class="title is-3">Using DOVE</h2>
 
-      <!-- First Section: Dataset Structure (Previously after Basic Dataset Loading) -->
+    <!-- Partial Dataset Loading Section -->
+    <div class="content" style="margin-bottom: 2.5rem;">
+      <p>DOVE is designed to be flexible - you can load just a small part of the data:</p>
+    </div>
+
+    <!-- First Section: Dataset Structure (Previously after Basic Dataset Loading) -->
       <div class="content">
         <h3 class="title is-4">📁 Dataset Structure</h3>
         <div class="code-container">
@@ -757,7 +765,7 @@
 
       <!-- Second Section: Loading Code (Previously Basic Dataset Loading) -->
       <div class="content" style="margin-top: 2.5rem;">
-        <h3 class="title is-4">💻 Code Examples</h3>
+        <h3 class="title is-4">Usage Example 🚀</h3>
         <p class="subtitle is-6">Load specific benchmarks from the dataset using HuggingFace's Datasets library</p>
         <pre><code class="language-python">from datasets import load_dataset
 
