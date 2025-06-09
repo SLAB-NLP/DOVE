@@ -1,0 +1,104 @@
+[
+    {
+        "evaluation_id": "f8544db40981f61e8a1357153bb1e65e097fb8bb442f88e96896b5aa28d92240",
+        "model": {
+            "configuration": {
+                "architecture": "transformer",
+                "context_window": 32768,
+                "hf_path": "mistralai/Mistral-7B-Instruct-v0.3",
+                "is_instruct": true,
+                "parameters": 7000000000,
+                "revision": null
+            },
+            "inference_settings": {
+                "generation_args": {
+                    "max_tokens": 64,
+                    "stop_sequences": [],
+                    "temperature": null,
+                    "top_k": -1,
+                    "top_p": null,
+                    "use_vllm": true
+                },
+                "quantization": {
+                    "bit_precision": "float16",
+                    "method": "None"
+                }
+            },
+            "model_info": {
+                "family": "Mistral",
+                "name": "mistralai/Mistral-7B-Instruct-v0.3"
+            }
+        },
+        "prompt_config": {
+            "dimensions": {
+                "choices_order": {
+                    "description": "Orders choices by length, from longest to shortest text",
+                    "method": "longest_to_shortest"
+                },
+                "demonstrations": [],
+                "enumerator": "numbers",
+                "instruction_phrasing": {
+                    "name": "MultipleChoiceTemplatesInstructionsStateHere",
+                    "text": "Here are some multiple choice questions along with their answers about {topic}.\n\nQuestion: {question}\nChoices: {choices}\nCorrect Answer:"
+                },
+                "separator": "; ",
+                "shots": 0
+            },
+            "prompt_class": "MultipleChoice"
+        },
+        "instance": {
+            "classification_fields": {
+                "choices": [
+                    {
+                        "id": "1",
+                        "text": "affirms the antecedent or denies the consequent"
+                    },
+                    {
+                        "id": "2",
+                        "text": "includes two or more alternatives"
+                    },
+                    {
+                        "id": "3",
+                        "text": "leads to a valid conclusion"
+                    },
+                    {
+                        "id": "4",
+                        "text": "classifies subjects"
+                    }
+                ],
+                "ground_truth": {
+                    "id": "2",
+                    "text": "includes two or more alternatives"
+                },
+                "question": "A valid disjunctive syllogism has a major premise that:"
+            },
+            "language": "en",
+            "perplexity": 24.34156048878043,
+            "prompt_logprobs": [
+            ],
+            "raw_input": "Here are some multiple choice questions along with their answers about logical fallacies.\n\nQuestion: A valid disjunctive syllogism has a major premise that:\nChoices: 1. affirms the antecedent or denies the consequent; 2. includes two or more alternatives; 3. leads to a valid conclusion; 4. classifies subjects\nCorrect Answer:",
+            "sample_identifier": {
+                "dataset_name": "mmlu.logical_fallacies",
+                "hf_index": 6672,
+                "hf_repo": "cais/mmlu",
+                "hf_split": "test"
+            },
+            "task_type": "classification"
+        },
+        "output": {
+            "cumulative_logprob": -24.279055669275564,
+            "generated_tokens_logprobs": [
+            ],
+            "response": " The fallacy of style over substance best describes the choice: 2. Reasoning that ideas presented in an appealing manner are correct, regardless of the content of the message. This fallacy prioritizes the way information is presented over the information itself, often leading to misunderstandings or incorrect conclusions. The other"
+        },
+        "evaluation": {
+            "evaluation_method": {
+                "closest_answer": "2. Reasoning that ideas presented in an appealing manner are correct, regardless of the content of the message.",
+                "description": "Finds the most similar answer among the given choices by comparing the textual content",
+                "method_name": "content_similarity"
+            },
+            "ground_truth": "2. Reasoning that ideas presented in an appealing manner are correct, regardless of the content of the message.",
+            "score": 1.0
+        }
+    }
+]
