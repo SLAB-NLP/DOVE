@@ -1,0 +1,532 @@
+{
+  "examples": [
+    {
+      "_comment": "Example 1: FinQA - Table QA with Numerical Reasoning",
+      "evaluation_id": "torr_finqa_001_markdown_shuffle_rows",
+      "model": {
+        "model_info": {
+          "name": "claude-3-5-sonnet",
+          "family": "claude"
+        },
+        "configuration": {
+          "context_window": 200000,
+          "is_instruct": true,
+          "architecture": "transformer",
+          "parameters": null
+        },
+        "inference_settings": {
+          "quantization": {
+            "bit_precision": "none",
+            "method": "None"
+          },
+          "generation_args": {
+            "max_tokens": 512,
+            "temperature": 0.0,
+            "use_vllm": false
+          }
+        }
+      },
+      "prompt_config": {
+        "prompt_class": "Table",
+        "dimensions": {
+          "instruction_phrasing": {
+            "name": "finqa_numerical",
+            "text": "Answer the following question based on the table. You may need to perform calculations.\n\nTable:\n{table}\n\nQuestion: {question}\nAnswer:"
+          },
+          "shots": 2,
+          "demonstrations": [
+            {
+              "table": "|Year|Revenue|Growth|\n|2012|$35M|12%|\n|2013|$40M|14%|",
+              "question": "What was the revenue in 2013?",
+              "answer": "$40M"
+            },
+            {
+              "table": "|Quarter|Sales|Expenses|\n|Q1|$100K|$80K|\n|Q2|$120K|$85K|",
+              "question": "What was the profit in Q1?",
+              "answer": "$20K"
+            }
+          ],
+          "table_serialization": {
+            "method": "markdown",
+            "description": "Table represented in markdown format with pipes"
+          },
+          "table_perturbation": {
+            "methods": ["shuffle_rows"],
+            "description": "Rows shuffled randomly while preserving header"
+          }
+        }
+      },
+      "instance": {
+        "task_type": "generation",
+        "raw_input": {
+          "table": "|Year|Revenue|Growth|\n|2014|$45M|15%|\n|2015|$52M|16%|\n|2016|$58M|12%|",
+          "question": "What was the percent of the growth from 2014 to 2015?"
+        },
+        "language": "en",
+        "sample_identifier": {
+          "dataset_name": "FinQA",
+          "hf_repo": "ibm/torr_finqa",
+          "hf_split": "test",
+          "hf_index": 0
+        },
+        "table_details": {
+          "table_metadata": {
+            "num_rows": 3,
+            "num_columns": 3,
+            "has_header": true
+          },
+          "table_task": "qa",
+          "required_reasoning": "numerical_reasoning"
+        }
+      },
+      "output": {
+        "response": "16%",
+        "cumulative_logprob": -2.45
+      },
+      "evaluation": {
+        "evaluation_method": {
+          "method_name": "program_accuracy",
+          "description": "Evaluates if the numerical result matches the expected answer"
+        },
+        "ground_truth": "16%",
+        "score": 1.0
+      }
+    },
+
+    {
+      "_comment": "Example 2: TabFact - Fact Verification (MultipleChoice True/False)",
+      "evaluation_id": "torr_tabfact_042_csv_none",
+      "model": {
+        "model_info": {
+          "name": "gpt-4o",
+          "family": "gpt"
+        },
+        "configuration": {
+          "context_window": 128000,
+          "is_instruct": true,
+          "architecture": "transformer",
+          "parameters": null
+        },
+        "inference_settings": {
+          "quantization": {
+            "bit_precision": "none",
+            "method": "None"
+          },
+          "generation_args": {
+            "max_tokens": 512,
+            "temperature": 0.0
+          }
+        }
+      },
+      "prompt_config": {
+        "prompt_class": "MultipleChoice",
+        "dimensions": {
+          "instruction_phrasing": {
+            "name": "tabfact_verify",
+            "text": "Based on the table below, determine if the following statement is true or false.\n\nTable:\n{table}\n\nStatement: {question}\n\nChoose from:\n{choices}\n\nAnswer:"
+          },
+          "shots": 2,
+          "demonstrations": [
+            {
+              "table": "|Team|Points|Rebounds|\n|Lakers|110|45|\n|Bulls|98|42|",
+              "question": "The Lakers scored more than 100 points",
+              "choices": [
+                {"id": "A", "text": "True"},
+                {"id": "B", "text": "False"}
+              ],
+              "answer": "A"
+            },
+            {
+              "table": "|Product|Price|In Stock|\n|Laptop|$1200|Yes|\n|Monitor|$300|No|",
+              "question": "The monitor is currently available in stock",
+              "choices": [
+                {"id": "A", "text": "True"},
+                {"id": "B", "text": "False"}
+              ],
+              "answer": "B"
+            }
+          ],
+          "mc_enumerator": "capitals",
+          "mc_separator": "\n",
+          "mc_choices_order": {
+            "method": "fixed",
+            "description": "A: True, B: False"
+          }
+        }
+      },
+      "instance": {
+        "task_type": "classification",
+        "raw_input": {
+          "table": "Player,Team,Points\nJohn Smith,Lakers,25\nMike Johnson,Bulls,30\nDavid Lee,Celtics,22",
+          "question": "Mike Johnson scored more points than John Smith"
+        },
+        "language": "en",
+        "sample_identifier": {
+          "dataset_name": "TabFact",
+          "hf_repo": "ibm/torr_tabfact",
+          "hf_split": "test",
+          "hf_index": 42
+        },
+        "classification_fields": {
+          "question": "Mike Johnson scored more points than John Smith",
+          "choices": [
+            {"id": "A", "text": "True"},
+            {"id": "B", "text": "False"}
+          ],
+          "ground_truth": {"id": "A", "text": "True"}
+        },
+        "table_details": {
+          "table_metadata": {
+            "num_rows": 3,
+            "num_columns": 3,
+            "has_header": true
+          },
+          "table_task": "fact_verification",
+          "required_reasoning": "knowledge_extraction"
+        }
+      },
+      "output": {
+        "response": "A. True",
+        "cumulative_logprob": -0.82
+      },
+      "evaluation": {
+        "evaluation_method": {
+          "method_name": "label_only_match",
+          "description": "Compares only the choice identifier/label to evaluate the response."
+        },
+        "ground_truth": "A",
+        "score": 1.0
+      }
+    },
+
+    {
+      "_comment": "Example 3: QTSumm - Table-to-Text Summarization",
+      "evaluation_id": "torr_qtsumm_015_json_transpose",
+      "model": {
+        "model_info": {
+          "name": "llama-3-1-70b-instruct",
+          "family": "Llama"
+        },
+        "configuration": {
+          "context_window": 131072,
+          "is_instruct": true,
+          "architecture": "transformer",
+          "parameters": 70
+        },
+        "inference_settings": {
+          "quantization": {
+            "bit_precision": "none",
+            "method": "None"
+          },
+          "generation_args": {
+            "max_tokens": 512,
+            "temperature": 0.0,
+            "use_vllm": true
+          }
+        }
+      },
+      "prompt_config": {
+        "prompt_class": "Table",
+        "dimensions": {
+          "instruction_phrasing": {
+            "name": "qtsumm_summarize",
+            "text": "Generate a natural language summary of the key information in this table.\n\nTable:\n{table}\n\nSummary:"
+          },
+          "shots": 5,
+          "demonstrations": [
+            {
+              "table": "{\"Product\":[\"Laptop\",\"Phone\",\"Tablet\"],\"Price\":[\"$1200\",\"$800\",\"$500\"],\"Stock\":[\"15\",\"32\",\"28\"]}",
+              "summary": "The table shows three electronic products with their prices and stock levels. Laptops are priced at $1200 with 15 units in stock, phones cost $800 with 32 units available, and tablets are $500 with 28 units in stock."
+            },
+            {
+              "table": "{\"Month\":[\"Jan\",\"Feb\",\"Mar\"],\"Revenue\":[\"$45K\",\"$52K\",\"$48K\"],\"Expenses\":[\"$38K\",\"$41K\",\"$39K\"]}",
+              "summary": "The table presents financial data for the first quarter. January had revenue of $45K and expenses of $38K. February showed the highest revenue at $52K with expenses of $41K. March recorded $48K in revenue and $39K in expenses."
+            },
+            {
+              "table": "{\"Team\":[\"Sales\",\"Marketing\",\"Engineering\"],\"Employees\":[\"25\",\"15\",\"40\"],\"Budget\":[\"$2M\",\"$1.5M\",\"$4M\"]}",
+              "summary": "The table displays department information across three teams. The Sales team has 25 employees and a $2M budget. Marketing consists of 15 employees with a $1.5M budget. Engineering is the largest team with 40 employees and a $4M budget."
+            },
+            {
+              "table": "{\"City\":[\"New York\",\"Los Angeles\",\"Chicago\"],\"Population\":[\"8.3M\",\"4M\",\"2.7M\"],\"Area\":[\"783 km²\",\"1,302 km²\",\"606 km²\"]}",
+              "summary": "The table compares three major US cities. New York has the largest population at 8.3 million people in an area of 783 km². Los Angeles has 4 million residents spread across 1,302 km², making it the most geographically expansive. Chicago has 2.7 million people in 606 km²."
+            },
+            {
+              "table": "{\"Course\":[\"Math\",\"Science\",\"History\"],\"Students\":[\"120\",\"95\",\"85\"],\"AvgGrade\":[\"B+\",\"A-\",\"B\"]}",
+              "summary": "The table shows enrollment and performance data for three courses. Math has the highest enrollment with 120 students and an average grade of B+. Science has 95 students with the best average grade of A-. History has 85 students with an average grade of B."
+            }
+          ],
+          "table_serialization": {
+            "method": "json",
+            "description": "Table represented as JSON object"
+          },
+          "table_perturbation": {
+            "methods": ["transpose"],
+            "description": "Rows and columns transposed"
+          }
+        }
+      },
+      "instance": {
+        "task_type": "generation",
+        "raw_input": {
+          "table": "{\"Country\":[\"USA\",\"China\",\"India\"],\"Population\":[\"331M\",\"1.4B\",\"1.3B\"],\"GDP\":[\"$21T\",\"$15T\",\"$3T\"]}"
+        },
+        "language": "en",
+        "sample_identifier": {
+          "dataset_name": "QTSumm",
+          "hf_repo": "ibm/torr_qtsumm",
+          "hf_split": "test",
+          "hf_index": 15
+        },
+        "table_details": {
+          "table_metadata": {
+            "num_rows": 3,
+            "num_columns": 3,
+            "has_header": true
+          },
+          "table_task": "summarization",
+          "required_reasoning": "textual_reasoning"
+        }
+      },
+      "output": {
+        "response": "The table shows data for three major countries. The USA has a population of 331 million and the largest GDP at $21 trillion. China has the highest population at 1.4 billion with a GDP of $15 trillion. India has a population of 1.3 billion and a GDP of $3 trillion.",
+        "cumulative_logprob": -15.23
+      },
+      "evaluation": {
+        "evaluation_method": {
+          "method_name": "rouge",
+          "description": "Calculates ROUGE score between generated and reference text"
+        },
+        "ground_truth": "The table presents economic and demographic data for three countries. China leads in population with 1.4 billion people, followed by India with 1.3 billion, while the USA has 331 million. In terms of GDP, the USA has the largest economy at $21 trillion, China follows with $15 trillion, and India has $3 trillion.",
+        "score": 0.73
+      }
+    },
+
+    {
+      "_comment": "Example 4: WikiTQ - Simple Table QA",
+      "evaluation_id": "torr_wikitq_088_html_none",
+      "model": {
+        "model_info": {
+          "name": "deepseek-v3",
+          "family": null
+        },
+        "configuration": {
+          "context_window": 128000,
+          "is_instruct": true
+        },
+        "inference_settings": {
+          "quantization": {
+            "bit_precision": "none",
+            "method": "None"
+          },
+          "generation_args": {
+            "max_tokens": 512,
+            "temperature": 0.0
+          }
+        }
+      },
+      "prompt_config": {
+        "prompt_class": "Table",
+        "dimensions": {
+          "instruction_phrasing": {
+            "name": "wikitq_simple",
+            "text": "Answer the question based on the table.\n\nTable:\n{table}\n\nQuestion: {question}\nAnswer:"
+          },
+          "shots": 1,
+          "demonstrations": [
+            {
+              "table": "<table><tr><th>Country</th><th>Capital</th><th>Language</th></tr><tr><td>France</td><td>Paris</td><td>French</td></tr><tr><td>Spain</td><td>Madrid</td><td>Spanish</td></tr></table>",
+              "question": "What is the capital of Spain?",
+              "answer": "Madrid"
+            }
+          ],
+          "table_serialization": {
+            "method": "html",
+            "description": "Table in HTML format"
+          },
+          "table_perturbation": {
+            "methods": ["none"],
+            "description": "No perturbation applied"
+          }
+        }
+      },
+      "instance": {
+        "task_type": "generation",
+        "raw_input": {
+          "table": "<table><tr><th>Year</th><th>Winner</th><th>Score</th></tr><tr><td>2020</td><td>Lakers</td><td>106-93</td></tr><tr><td>2021</td><td>Bucks</td><td>105-98</td></tr></table>",
+          "question": "Who won in 2021?"
+        },
+        "language": "en",
+        "sample_identifier": {
+          "dataset_name": "WikiTQ",
+          "hf_repo": "ibm/torr_wikitq",
+          "hf_split": "test",
+          "hf_index": 88
+        },
+        "table_details": {
+          "table_metadata": {
+            "num_rows": 2,
+            "num_columns": 3,
+            "has_header": true
+          },
+          "table_task": "qa",
+          "required_reasoning": "knowledge_extraction"
+        }
+      },
+      "output": {
+        "response": "Bucks",
+        "cumulative_logprob": -0.23
+      },
+      "evaluation": {
+        "evaluation_method": {
+          "method_name": "f1_strings",
+          "description": "Calculates F1 score for string matching"
+        },
+        "ground_truth": "Bucks",
+        "score": 1.0
+      }
+    },
+
+    {
+      "_comment": "Example 5: TURL CTA - Column Type Annotation (Classification)",
+      "evaluation_id": "torr_turl_cta_033_list_of_lists_shuffle_columns",
+      "model": {
+        "model_info": {
+          "name": "gemini-1.5-pro",
+          "family": "gemini"
+        },
+        "configuration": {
+          "context_window": 2097152,
+          "is_instruct": true
+        },
+        "inference_settings": {
+          "quantization": {
+            "bit_precision": "none",
+            "method": "None"
+          },
+          "generation_args": {
+            "max_tokens": 512,
+            "temperature": 0.0
+          }
+        }
+      },
+      "prompt_config": {
+        "prompt_class": "MultipleChoice",
+        "dimensions": {
+          "instruction_phrasing": {
+            "name": "turl_classify",
+            "text": "Given the table column, classify its semantic type.\n\nTable:\n{table}\n\nWhat is the semantic type of the highlighted column?\nChoose from:\n{choices}\n\nAnswer:"
+          },
+          "shots": 5,
+          "demonstrations": [
+            {
+              "table": "[['Apple', 'Microsoft', 'Google'], ['Technology', 'Technology', 'Technology'], ['$2.5T', '$2.3T', '$1.8T']]",
+              "question": "Classify the first column semantic type",
+              "choices": [
+                {"id": "1", "text": "Company"},
+                {"id": "2", "text": "Product"},
+                {"id": "3", "text": "Location"},
+                {"id": "4", "text": "Person"}
+              ],
+              "answer": "1"
+            },
+            {
+              "table": "[['John Smith', 'Jane Doe', 'Bob Johnson'], ['Engineer', 'Manager', 'Designer'], ['5 years', '8 years', '3 years']]",
+              "question": "Classify the first column semantic type",
+              "choices": [
+                {"id": "1", "text": "Company"},
+                {"id": "2", "text": "Job Title"},
+                {"id": "3", "text": "Location"},
+                {"id": "4", "text": "Person"}
+              ],
+              "answer": "4"
+            },
+            {
+              "table": "[['USA', 'Canada', 'Mexico'], ['Washington DC', 'Ottawa', 'Mexico City'], ['English', 'English/French', 'Spanish']]",
+              "question": "Classify the second column semantic type",
+              "choices": [
+                {"id": "1", "text": "Capital City"},
+                {"id": "2", "text": "Country"},
+                {"id": "3", "text": "State"},
+                {"id": "4", "text": "Language"}
+              ],
+              "answer": "1"
+            },
+            {
+              "table": "[['2020', '2021', '2022'], ['$1.2M', '$1.5M', '$1.8M'], ['15%', '25%', '20%']]",
+              "question": "Classify the first column semantic type",
+              "choices": [
+                {"id": "1", "text": "Revenue"},
+                {"id": "2", "text": "Year"},
+                {"id": "3", "text": "Percentage"},
+                {"id": "4", "text": "Company"}
+              ],
+              "answer": "2"
+            },
+            {
+              "table": "[['iPhone', 'Galaxy', 'Pixel'], ['Apple', 'Samsung', 'Google'], ['$999', '$899', '$799']]",
+              "question": "Classify the first column semantic type",
+              "choices": [
+                {"id": "1", "text": "Company"},
+                {"id": "2", "text": "Product"},
+                {"id": "3", "text": "Price"},
+                {"id": "4", "text": "Category"}
+              ],
+              "answer": "2"
+            }
+          ],
+          "mc_enumerator": "numbers",
+          "mc_separator": "\n",
+          "mc_choices_order": {
+            "method": "alphabetical",
+            "description": "Choices sorted alphabetically"
+          }
+        }
+      },
+      "instance": {
+        "task_type": "classification",
+        "raw_input": {
+          "table": "[['Paris', 'Berlin', 'London'], ['France', 'Germany', 'UK'], ['2.2M', '3.7M', '9M']]",
+          "question": "Classify the first column (Paris, France, 2.2M)"
+        },
+        "language": "en",
+        "sample_identifier": {
+          "dataset_name": "TURL_CTA",
+          "hf_repo": "ibm/torr_turl_cta",
+          "hf_split": "test",
+          "hf_index": 33
+        },
+        "classification_fields": {
+          "question": "Classify the first column semantic type",
+          "choices": [
+            {"id": "1", "text": "City"},
+            {"id": "2", "text": "Country"},
+            {"id": "3", "text": "Person"},
+            {"id": "4", "text": "Organization"}
+          ],
+          "ground_truth": {"id": "1", "text": "City"}
+        },
+        "table_details": {
+          "table_metadata": {
+            "num_rows": 3,
+            "num_columns": 3,
+            "has_header": false
+          },
+          "table_task": "entity_classification",
+          "required_reasoning": "knowledge_extraction"
+        }
+      },
+      "output": {
+        "response": "1. City",
+        "cumulative_logprob": -1.05
+      },
+      "evaluation": {
+        "evaluation_method": {
+          "method_name": "exact_match",
+          "description": "Checks for exact string match"
+        },
+        "ground_truth": "1",
+        "score": 1.0
+      }
+    }
+  ]
+}

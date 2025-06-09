@@ -130,39 +130,16 @@
                 "prompt_class": {
                     "type": "string",
                     "description": "Type of task and its formatting requirements",
-                    "enum": ["MultipleChoice", "OpenEnded", "Completion"]
+                    "enum": ["MultipleChoice", "OpenEnded", "Completion", "Table"]
                 },
                 "dimensions": {
                     "type": "object",
                     "description": "Format-specific configuration dimensions",
-                    "required": ["choices_order", "enumerator", "instruction_phrasing", "separator", "shots"],
+                    "required": ["instruction_phrasing", "shots"],
                     "properties": {
-                        "choices_order": {
-                            "type": "object",
-                            "required": ["method", "description"],
-                            "properties": {
-                                "method": {
-                                    "type": "string",
-                                    "description": "The method to use for ordering choices"
-                                },
-                                "description": {
-                                    "type": "string",
-                                    "description": "Detailed explanation of the ordering method"
-                                }
-                            }
-                        },
-                        "demonstrations": {
-                            "type": "array",
-                            "description": "Array of demonstration examples used in few-shot prompting",
-                            "default": []
-                        },
-                        "enumerator": {
-                            "type": "string",
-                            "description": "Style of enumeration for multiple choice options",
-                            "enum": ["capitals", "lowercase", "numbers", "roman", "keyboard", "greek"]
-                        },
                         "instruction_phrasing": {
                             "type": "object",
+                            "description": "How the instruction is phrased",
                             "required": ["name", "text"],
                             "properties": {
                                 "name": {
@@ -175,16 +152,74 @@
                                 }
                             }
                         },
-                        "separator": {
-                            "type": "string",
-                            "description": "Character(s) used to separate multiple choice options",
-                            "enum": ["\\s", "\n", ", ", "; ", " | ", " OR ", " or "]
-                        },
                         "shots": {
                             "type": "integer",
                             "description": "Number of examples provided in the prompt",
                             "minimum": 0,
                             "maximum": 10
+                        },
+                        "demonstrations": {
+                            "type": "array",
+                            "description": "Array of demonstration examples used in few-shot prompting",
+                            "default": []
+                        },
+                        "mc_enumerator": {
+                            "type": "string",
+                            "description": "Style of enumeration for multiple choice options (MultipleChoice only)",
+                            "enum": ["capitals", "lowercase", "numbers", "roman", "keyboard", "greek"]
+                        },
+                        "mc_separator": {
+                            "type": "string",
+                            "description": "Character(s) used to separate multiple choice options (MultipleChoice only)",
+                            "enum": ["\\s", "\n", ", ", "; ", " | ", " OR ", " or "]
+                        },
+                        "mc_choices_order": {
+                            "type": "object",
+                            "description": "How multiple choice options are ordered (MultipleChoice only)",
+                            "required": ["method", "description"],
+                            "properties": {
+                                "method": {
+                                    "type": "string",
+                                    "description": "The method to use for ordering choices"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Detailed explanation of the ordering method"
+                                }
+                            }
+                        },
+                        "table_serialization": {
+                            "type": "object",
+                            "description": "Method for representing table data as string (Table only)",
+                            "properties": {
+                                "method": {
+                                    "type": "string",
+                                    "enum": ["csv", "json", "html", "markdown", "xml", "latex", "list_of_lists"],
+                                    "description": "Table serialization format"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Description of the serialization method"
+                                }
+                            }
+                        },
+                        "table_perturbation": {
+                            "type": "object",
+                            "description": "Structural changes applied to table (Table only)",
+                            "properties": {
+                                "methods": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": ["none", "shuffle_rows", "shuffle_columns", "transpose"]
+                                    },
+                                    "description": "List of perturbations applied in order"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Description of the perturbation"
+                                }
+                            }
                         }
                     }
                 }
@@ -218,31 +253,27 @@
                                 "required": ["role", "content"]
                             },
                             "description": "Array of conversation turns with roles and content"
+                        },
+                        {
+                            "type": "object",
+                            "description": "Structured input for table tasks",
+                            "properties": {
+                                "table": {
+                                    "type": "string",
+                                    "description": "Table data in raw format"
+                                },
+                                "question": {
+                                    "type": "string",
+                                    "description": "Question about the table"
+                                }
+                            }
                         }
                     ]
                 },
-                "language":
-                {
+                "language": {
                     "type": "string",
                     "description": "Language of the input text",
-                    "examples":
-                            [
-                                "en",
-                                "fr",
-                                "de",
-                                "es",
-                                "it",
-                                "pt",
-                                "nl",
-                                "pl",
-                                "ru",
-                                "tr",
-                                "ar",
-                                "ja",
-                                "ko",
-                                "zh",
-                                "he"
-                            ]
+                    "examples": ["en", "fr", "de", "es", "it", "pt", "nl", "pl", "ru", "tr", "ar", "ja", "ko", "zh", "he"]
                 },
                 "sample_identifier": {
                     "type": "object",
@@ -320,6 +351,40 @@
                         }
                     }
                 },
+                "table_details": {
+                    "type": "object",
+                    "description": "Details specific to table tasks (when prompt_class is Table)",
+                    "properties": {
+                        "table_metadata": {
+                            "type": "object",
+                            "description": "Metadata about table structure",
+                            "properties": {
+                                "num_rows": {
+                                    "type": "integer",
+                                    "description": "Number of rows in the table"
+                                },
+                                "num_columns": {
+                                    "type": "integer",
+                                    "description": "Number of columns in the table"
+                                },
+                                "has_header": {
+                                    "type": "boolean",
+                                    "description": "Whether the table has a header row"
+                                }
+                            }
+                        },
+                        "table_task": {
+                            "type": "string",
+                            "description": "Specific type of table task",
+                            "enum": ["qa", "fact_verification", "summarization", "entity_classification", "data_analysis"]
+                        },
+                        "required_reasoning": {
+                            "type": "string",
+                            "description": "Type of reasoning required",
+                            "enum": ["knowledge_extraction", "textual_reasoning", "numerical_reasoning", "mixed"]
+                        }
+                    }
+                },
                 "prompt_logprobs": {
                     "type": "array",
                     "description": "Array of token probability data, with first element being 'None' and subsequent elements being arrays of token information",
@@ -372,7 +437,8 @@
                     "description": "Cumulative log probability of the generated sequence from VLLM"
                 },
                 "generated_tokens_logprobs": {
-                    "additionalProperties": false,
+                    "type": "array",
+                    "description": "Array of token probability data for generated tokens",
                     "items": {
                         "oneOf": [
                             {
@@ -435,7 +501,7 @@
                     "if": {
                         "properties": {
                             "method_name": {
-                                "enum": ["label_only_match", "content_similarity"]
+                                "enum": ["label_only_match", "content_similarity", "program_accuracy", "rouge", "f1_strings", "exact_match", "accuracy"]
                             }
                         }
                     },
@@ -445,7 +511,12 @@
                                 "type": "string",
                                 "enum": [
                                     "Compares only the choice identifier/label to evaluate the response.",
-                                    "Finds the most similar answer among the given choices by comparing the textual content"
+                                    "Finds the most similar answer among the given choices by comparing the textual content",
+                                    "Evaluates if the numerical result matches the expected answer",
+                                    "Calculates ROUGE score between generated and reference text",
+                                    "Calculates F1 score for string matching",
+                                    "Checks for exact string match",
+                                    "Binary accuracy score"
                                 ]
                             }
                         }
@@ -454,7 +525,7 @@
                         "properties": {
                             "description": {
                                 "type": "string",
-                                "description": "Explanation of the custom evaluation method."
+                                "description": "Explanation of the custom evaluation method"
                             }
                         }
                     }
@@ -465,7 +536,7 @@
                 },
                 "score": {
                     "type": "number",
-                    "description": "Binary score indicating whether the model's answer was correct (1.0) or incorrect (0.0)",
+                    "description": "Score indicating model performance (typically 0.0 to 1.0)",
                     "minimum": 0,
                     "maximum": 1
                 }
