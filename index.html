@@ -433,6 +433,13 @@
                   <span>Contact</span>
                 </a>
               </span>
+              <!-- Graphs link -->
+              <span class="link-block">
+                <a href="graphs.html" class="external-link button is-normal is-rounded animated-button">
+                  <span class="icon">🔬</span>
+                  <span>Interactive Visualizations</span>
+                </a>
+              </span>
             </div>
             <div class="is-size-5 publication-authors" style="margin-top: 1rem;">
               <!-- Author names and institution -->
@@ -703,10 +710,288 @@
     min-width: fit-content;
   }
 }
+
+/* Animated Waves Background */
+.animated-waves-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.animated-waves-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 1;
+}
+
+.animated-waves-bg::before,
+.animated-waves-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    -45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
+  animation: waves 8s linear infinite;
+}
+
+.animated-waves-bg::after {
+  background: linear-gradient(
+    45deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.05) 40%,
+    transparent 60%
+  );
+  animation: waves 12s linear infinite reverse;
+}
+
+@keyframes waves {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+/* Add some floating animation to the content */
+.animated-waves-section .box {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Animated Button with Waves */
+.animated-button {
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border: none !important;
+  overflow: hidden;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+}
+
+.animated-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: wave-sweep 3s linear infinite;
+}
+
+.animated-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+}
+
+.animated-button:hover::before {
+  animation: wave-sweep 1.5s linear infinite;
+}
+
+@keyframes wave-sweep {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Add shine effect to all buttons */
+.publication-links .button {
+  position: relative;
+  overflow: hidden;
+}
+
+.publication-links .button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: button-shine-initial 2s ease-out 0.5s 1 forwards, button-shine-regular 4s linear 3s infinite;
+  z-index: 1;
+}
+
+/* Different delays for each button to create staggered effect */
+.publication-links .button:nth-child(1)::before {
+  animation-delay: 0.2s, 2.2s;
+}
+
+.publication-links .button:nth-child(2)::before {
+  animation-delay: 0.4s, 2.4s;
+}
+
+.publication-links .button:nth-child(3)::before {
+  animation-delay: 0.6s, 2.6s;
+}
+
+.publication-links .button:nth-child(4)::before {
+  animation-delay: 0.8s, 2.8s;
+}
+
+.publication-links .button:nth-child(5)::before {
+  animation-delay: 1.0s, 3.0s;
+}
+
+.publication-links .button span {
+  position: relative;
+  z-index: 2;
+}
+
+/* Initial fast shine when page loads */
+@keyframes button-shine-initial {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Regular slower shine that repeats */
+@keyframes button-shine-regular {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Interactive Explore Button */
+.interactive-explore-button {
+  position: relative !important;
+  background: linear-gradient(45deg, #ffffff, #f8f9fa) !important;
+  color: #333333 !important;
+  border: 3px solid transparent !important;
+  background-clip: padding-box !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15), 0 0 0 3px rgba(255,255,255,0.3) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-size: 1.2rem !important;
+  padding: 1rem 2rem !important;
+  border-radius: 50px !important;
+  text-decoration: none !important;
+  overflow: hidden;
+}
+
+.interactive-explore-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  z-index: -1;
+  transition: all 0.3s ease;
+  transform: scale(0);
+  border-radius: 50px;
+}
+
+.interactive-explore-button:hover {
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.2), 0 0 0 3px rgba(255,215,0,0.6) !important;
+  color: #333333 !important;
+}
+
+.interactive-explore-button:hover::before {
+  transform: scale(1);
+}
+
+.interactive-explore-button:active {
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* Pulse animation to draw attention */
+.interactive-explore-button {
+  animation: gentle-pulse 3s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+  0%, 100% {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15), 0 0 0 3px rgba(255,255,255,0.3);
+  }
+  50% {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15), 0 0 0 6px rgba(255,255,255,0.5);
+  }
+}
 </style>
 
-  <!-- Spacer Section -->
-  <section class="section" style="background-color: #f5f5f5; padding: 2rem;">
+  <!-- Interactive Visualizations Callout -->
+  <section class="section animated-waves-section" style="position: relative; overflow: hidden; color: white;">
+    <div class="animated-waves-bg"></div>
+    <div class="container is-max-desktop" style="position: relative; z-index: 2;">
+      <div class="has-text-centered">
+        <h2 class="title is-2" style="color: white; margin-bottom: 2rem;">🔬 Explore Our Research Findings</h2>
+        <p class="subtitle is-4" style="color: #f0f0f0; margin-bottom: 2rem;">
+          Dive deep into our comprehensive analysis with interactive visualizations
+        </p>
+        <div class="columns is-centered">
+          <div class="column is-8">
+            <div class="box" style="background: rgba(255,255,255,0.1); border: none; backdrop-filter: blur(10px);">
+              <div class="content" style="color: white;">
+                <h3 class="title is-4" style="color: white; margin-bottom: 1rem;">📊 What You'll Find:</h3>
+                <div class="columns">
+                  <div class="column">
+                    <ul style="text-align: left; color: #f0f0f0;">
+                      <li>📈 <strong>Performance Variations</strong> across datasets</li>
+                      <li>🎯 <strong>Few-Shot Performance Variance</strong> analysis</li>
+                    </ul>
+                  </div>
+                  <div class="column">
+                    <ul style="text-align: left; color: #f0f0f0;">
+                      <li>🛡️ <strong>Success Rate Distribution</strong> patterns</li>
+                      <li>🔍 <strong>Accuracy Marginalization</strong> insights</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+                             <div class="has-text-centered" style="margin-top: 2rem;">
+                 <a href="graphs.html" class="button is-white is-large interactive-explore-button" style="font-weight: 600;">
+                   <span class="icon">🚀</span>
+                   <span>Explore Interactive Visualizations</span>
+                 </a>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- About Section -->

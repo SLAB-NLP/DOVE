@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DOVE Research Findings - Explore LLM Evaluation Results</title>
+  <meta name="description" content="Interactive analysis and visualizations from the DOVE dataset research on LLM prompt sensitivity" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕊️</text></svg>">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <style>
+    .graph-container {
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    /* Style for empty containers (placeholders) */
+    .graph-container:empty,
+    .graph-container:has(.placeholder-text) {
+      background-color: #f8f9fa;
+      border: 2px dashed #dee2e6;
+    }
+    
+    .graph-container:empty:hover,
+    .graph-container:has(.placeholder-text):hover {
+      border-color: #4a90e2;
+    }
+    
+    .graph-image {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 580px;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .graph-image:hover {
+      transform: scale(1.02);
+    }
+    
+    /* Different container heights for different graph types */
+    .graph-container.robustness-type {
+      min-height: 500px; /* For histogram 13x9 ratio */
+    }
+    
+    .graph-container.zero-few-shot-type {
+      min-height: 480px; /* For scatter+box 12x8 ratio */
+    }
+    
+    .graph-container.performance-variations-type {
+      min-height: 350px; /* For wide performance graphs 14x5.5 ratio */
+    }
+    
+    .graph-container.prompt-elements-type {
+      min-height: 500px !important;
+    }
+    
+    .graph-container.prompt-elements-type .graph-image {
+      max-height: 1200px !important; /* Significantly increased for better visibility */
+      width: 100% !important;
+      height: auto !important;
+      object-fit: scale-down !important; /* Allow image to scale up but not beyond original size */
+    }
+    
+    /* Hover tooltip for images only */
+    .graph-container:has(.graph-image)::after {
+      content: "🔍 Click to open in full size";
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    .graph-container:has(.graph-image):hover::after {
+      opacity: 1;
+    }
+    
+    .controls-section {
+      background-color: #f5f5f5;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+    }
+    
+    .control-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+    
+    .control-label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    .select-container {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .select select {
+      min-width: 200px;
+    }
+    
+    .tabs.is-boxed li.is-active a {
+      background-color: #4a90e2;
+      border-color: #4a90e2;
+      color: white;
+    }
+    
+    /* Improve tab styling */
+    .tabs.is-boxed {
+      font-size: 1rem; /* Reduced from default large */
+    }
+    
+    .tabs.is-boxed li a {
+      padding: 0.75rem 1rem; /* Reduced padding for compactness */
+      border-radius: 6px 6px 0 0;
+      transition: all 0.2s ease;
+    }
+    
+    .tabs.is-boxed li a:hover {
+      background-color: #f8f9fa;
+      border-color: #dee2e6;
+    }
+    
+    .tabs.is-boxed li.is-active a:hover {
+      background-color: #4a90e2;
+      border-color: #4a90e2;
+    }
+    
+    .tabs.is-boxed li a .icon {
+      margin-right: 0.5rem;
+      font-size: 0.9rem; /* Slightly smaller icons */
+    }
+    
+    .placeholder-text {
+      color: #6c757d;
+      font-size: 1.2em;
+      text-align: center;
+    }
+    
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: #ffffff !important;
+      color: #333333 !important;
+      border: 2px solid #333333 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600 !important;
+    }
+    
+    .back-button:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+      background: #333333 !important;
+      color: #ffffff !important;
+      border-color: #333333 !important;
+    }
+    
+    .back-button .icon {
+      margin-right: 0.5rem;
+    }
+    
+    .graph-title {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.25em;
+      font-weight: 600;
+      color: #363636;
+    }
+    
+    .shot-selector {
+      display: flex;
+      gap: 0.25rem; /* Reduced gap between buttons */
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    
+    .shot-button {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 0.5rem 1rem; /* Reduced padding for compactness */
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem; /* Smaller text */
+      font-weight: 500;
+      min-width: 80px; /* Consistent width */
+      text-align: center;
+    }
+    
+    .shot-button.active {
+      background-color: #4a90e2;
+      border-color: #4a90e2;
+      color: white;
+      box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+    }
+    
+    .shot-button:hover {
+      background-color: #e9ecef;
+      border-color: #adb5bd;
+      transform: translateY(-1px);
+    }
+    
+    .shot-button.active:hover {
+      background-color: #357abd;
+      border-color: #357abd;
+      color: white;
+    }
+
+    /* Hide tab content by default */
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.is-active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Back Button -->
+  <a href="index.html" class="button back-button">
+    <span class="icon">
+      <i class="fas fa-arrow-circle-left"></i>
+    </span>
+    <span>Back to Main</span>
+  </a>
+
+  <!-- Header -->
+  <section class="hero is-primary is-medium" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <h1 class="title is-2" style="color: #ffffff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-weight: 700;">📊 DOVE Research Findings</h1>
+        <p class="subtitle is-4" style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); font-weight: 500;">Interactive analysis of LLM prompt sensitivity across multiple dimensions</p>
+                 <p class="subtitle is-6" style="color: #f0f0f0; margin-top: 1rem; font-weight: 400;">
+           <i class="far fa-calendar" style="margin-right: 0.5rem;"></i>
+           Last updated: 11/06/2025
+         </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      
+      <!-- Introduction -->
+      <div class="notification is-light" style="margin-bottom: 2rem;">
+        <h3 class="title is-4">🔬 Explore DOVE Research Findings</h3>
+        <p>Dive into the comprehensive analysis results from our DOVE dataset research. Each visualization reveals different aspects of LLM prompt sensitivity and robustness across various dimensions and evaluation benchmarks.</p>
+        <p><strong>Note:</strong> Results are organized by analysis type. Select models and datasets to explore specific findings from our large-scale evaluation study.</p>
+      </div>
+      
+      <!-- Tabs Navigation -->
+      <div class="tabs is-boxed is-centered">
+        <ul>
+          <li class="is-active" data-tab="performance-variations">
+            <a>
+              <span class="icon"><i class="fas fa-chart-bar"></i></span>
+              <span>Performance Variations</span>
+            </a>
+          </li>
+          <li data-tab="few-shot-variance">
+            <a>
+              <span class="icon"><i class="fas fa-chart-line"></i></span>
+              <span>Few-Shot Performance Variance</span>
+            </a>
+          </li>
+          <li data-tab="success-rate-distribution">
+            <a>
+              <span class="icon"><i class="fas fa-shield-alt"></i></span>
+              <span>Success Rate Distribution</span>
+            </a>
+          </li>
+          <li data-tab="accuracy-marginalization">
+            <a>
+              <span class="icon"><i class="fas fa-cogs"></i></span>
+              <span>Accuracy Marginalization</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tab Contents -->
+      
+      <!-- Performance Variations Tab -->
+      <div id="performance-variations" class="tab-content is-active">
+        <div class="notification is-primary is-light" style="margin-bottom: 2rem;">
+          <h4 class="title is-5">📊 Performance Variations</h4>
+          <p><strong>Performance variations across evaluation datasets.</strong> Each datapoint represents the accuracy of one model calculated across instances. Vertical scatter plots illustrate the variance within each dataset and each model. Model performance varies substantially, indicating persistent prompt sensitivity at large scales across different prompt dimensions.</p>
+        </div>
+        
+        <div class="controls-section">
+          <div class="control-group">
+            <label class="control-label">Select Dataset:</label>
+            <div class="select-container">
+              <div class="select is-medium">
+                <select id="dataset-select-pv">
+                  <option value="">Choose a dataset...</option>
+                  <option value="mmlu_abstract_algebra" selected>MMLU Abstract Algebra</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="graph-title" id="graph-title-pv"></div>
+        
+        <div class="graph-container" id="graph-container-pv">
+          <div class="placeholder-text">
+            <i class="fas fa-chart-bar fa-3x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
+            <p>Select a dataset to view the performance variations analysis</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Rate Distribution Tab -->
+      <div id="success-rate-distribution" class="tab-content">
+        <div class="notification is-success is-light" style="margin-bottom: 2rem;">
+          <h4 class="title is-5">🛡️ Per Question Robustness</h4>
+          <p><strong>Success rate distribution reveals inherent example difficulty patterns.</strong> Distribution of success rates by evaluation dimension and model. The x-axis shows the percentage of successful perturbations per instance, while the y-axis shows the instance count in DOVE. The distribution reveals examples that are consistently easy or difficult for LLMs across prompt dimensions.</p>
+        </div>
+        
+        <div class="controls-section">
+          <div class="control-group">
+            <label class="control-label">Select Model:</label>
+            <div class="select-container">
+              <div class="select is-medium">
+                <select id="model-select-qr">
+                  <option value="">Choose a model...</option>
+                  <option value="meta_llama_Meta_Llama_3_8B_Instruct" selected>Meta-Llama-3-8B-Instruct</option>
+                  <option value="mistralai_Mistral_7B_Instruct_v0.3">Mistral-7B-Instruct-v0.3</option>
+                  <option value="meta_llama_Llama_3.2_1B_Instruct">Llama-3.2-1B-Instruct</option>
+                  <option value="meta_llama_Llama_3.2_3B_Instruct">Llama-3.2-3B-Instruct</option>
+                  <option value="allenai_OLMoE_1B_7B_0924_Instruct">OLMoE-1B-7B-0924-Instruct</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="graph-title" id="graph-title-qr"></div>
+        
+        <div class="graph-container" id="graph-container-qr">
+          <div class="placeholder-text">
+            <i class="fas fa-shield-alt fa-3x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
+            <p>Select a model to view the per question robustness analysis</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Few-Shot Performance Variance Tab -->
+      <div id="few-shot-variance" class="tab-content">
+        <div class="notification is-warning is-light" style="margin-bottom: 2rem;">
+          <h4 class="title is-5">📈 Zero/Few Shot Analysis</h4>
+          <p><strong>Few-shot reduces performance variance across evaluation dimensions.</strong> Comparing zero-shot and five-shot on domains from DOVE reveals a narrower spread of accuracy scores. Each point represents the accuracy across instances, demonstrating that the five-shot demonstrations lead to more robust performance and reduced prompt sensitivity.</p>
+        </div>
+        
+        <div class="controls-section">
+          <div class="control-group">
+            <label class="control-label">Select Dataset:</label>
+            <div class="select-container">
+              <div class="select is-medium">
+                <select id="dataset-select-zfs">
+                  <option value="">Choose a dataset...</option>
+                  <option value="mmlu_abstract_algebra" selected>MMLU Abstract Algebra</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="graph-title" id="graph-title-zfs"></div>
+        
+        <div class="graph-container" id="graph-container-zfs">
+          <div class="placeholder-text">
+            <i class="fas fa-chart-line fa-3x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
+            <p>Select a dataset to view the zero/few shot analysis</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accuracy Marginalization Tab -->
+      <div id="accuracy-marginalization" class="tab-content">
+        <div class="notification is-info is-light" style="margin-bottom: 2rem;">
+          <h4 class="title is-5">📊 Accuracy Marginalization</h4>
+          <p><strong>Accuracy marginalization for different dimensions.</strong> Variations along each of the dimensions in DOVE lead to prompt sensitivity, even when controlling for all other dimensions. This analysis shows how different prompt elements (delimiters, instruction wording, answer formatting, etc.) affect model performance across datasets.</p>
+        </div>
+        
+        <div class="controls-section">
+          <div class="control-group">
+            <label class="control-label">Select Model:</label>
+            <div class="select-container">
+              <div class="select is-medium">
+                <select id="model-select-pe">
+                  <option value="">Choose a model...</option>
+                  <option value="Meta-Llama-3-8B-Instruct" selected>Meta-Llama-3-8B-Instruct</option>
+                  <option value="Mistral-7B-Instruct-v0.3">Mistral-7B-Instruct-v0.3</option>
+                  <option value="Llama-3.2-1B-Instruct">Llama-3.2-1B-Instruct</option>
+                  <option value="Llama-3.2-3B-Instruct">Llama-3.2-3B-Instruct</option>
+                  <option value="Llama-3.3-70B-Instruct">Llama-3.3-70B-Instruct</option>
+                  <option value="OLMoE-1B-7B-0924-Instruct">OLMoE-1B-7B-0924-Instruct</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <label class="control-label">Select Dataset:</label>
+            <div class="select-container">
+              <div class="select is-medium">
+                <select id="dataset-select-pe">
+                  <option value="">Choose a dataset...</option>
+                  <option value="mmlu_abstract_algebra" selected>MMLU Abstract Algebra</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="shot-selector" id="shot-selector-pe" style="display: flex;">
+          <button class="shot-button active" data-shot="combined">Combined</button>
+          <button class="shot-button" data-shot="0shot">0-shot</button>
+          <button class="shot-button" data-shot="5shot">5-shot</button>
+        </div>
+
+        <div class="graph-title" id="graph-title-pe"></div>
+        
+        <div class="graph-container" id="graph-container-pe">
+          <div class="placeholder-text">
+            <i class="fas fa-cogs fa-3x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
+            <p>Select a model and dataset to view the accuracy marginalization analysis</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    // All available datasets
+    const allDatasets = [
+      'mmlu_abstract_algebra', 'mmlu_anatomy', 'mmlu_astronomy', 'mmlu_business_ethics',
+      'mmlu_clinical_knowledge', 'mmlu_college_biology', 'mmlu_college_chemistry',
+      'mmlu_college_computer_science', 'mmlu_college_mathematics', 'mmlu_college_medicine',
+      'mmlu_college_physics', 'mmlu_computer_security', 'mmlu_conceptual_physics',
+      'mmlu_econometrics', 'mmlu_electrical_engineering', 'mmlu_elementary_mathematics',
+      'mmlu_formal_logic', 'mmlu_global_facts', 'mmlu_high_school_biology',
+      'mmlu_high_school_chemistry', 'mmlu_high_school_computer_science', 'mmlu_high_school_european_history',
+      'mmlu_high_school_geography', 'mmlu_high_school_government_and_politics', 'mmlu_high_school_macroeconomics',
+      'mmlu_high_school_mathematics', 'mmlu_high_school_microeconomics', 'mmlu_high_school_physics',
+      'mmlu_high_school_psychology', 'mmlu_high_school_statistics', 'mmlu_high_school_us_history',
+      'mmlu_high_school_world_history', 'mmlu_human_aging', 'mmlu_human_sexuality',
+      'mmlu_international_law', 'mmlu_jurisprudence', 'mmlu_logical_fallacies',
+      'mmlu_machine_learning', 'mmlu_management', 'mmlu_marketing', 'mmlu_medical_genetics',
+      'mmlu_miscellaneous', 'mmlu_moral_disputes', 'mmlu_moral_scenarios', 'mmlu_nutrition',
+      'mmlu_philosophy', 'mmlu_prehistory', 'mmlu_professional_accounting', 'mmlu_professional_law',
+      'mmlu_professional_medicine', 'mmlu_professional_psychology', 'mmlu_pro_biology',
+      'mmlu_pro_business', 'mmlu_pro_chemistry', 'mmlu_pro_computer_science', 'mmlu_pro_economics',
+      'mmlu_pro_engineering', 'mmlu_pro_health', 'mmlu_pro_history', 'mmlu_pro_law',
+      'mmlu_pro_math', 'mmlu_pro_other', 'mmlu_pro_philosophy', 'mmlu_pro_physics',
+      'mmlu_pro_psychology', 'mmlu_public_relations', 'mmlu_security_studies', 'mmlu_sociology',
+      'mmlu_us_foreign_policy', 'mmlu_virology', 'mmlu_world_religions', 'ai2_arc_arc_challenge',
+      'ai2_arc_arc_easy', 'hellaswag', 'openbook_qa', 'social_iqa'
+    ];
+
+    // Model mappings for display names
+    const modelDisplayNames = {
+      'Meta-Llama-3-8B-Instruct': 'Meta-Llama-3-8B-Instruct',
+      'Mistral-7B-Instruct-v0.3': 'Mistral-7B-Instruct-v0.3',
+      'Llama-3.2-1B-Instruct': 'Llama-3.2-1B-Instruct',
+      'Llama-3.2-3B-Instruct': 'Llama-3.2-3B-Instruct',
+      'Llama-3.3-70B-Instruct': 'Llama-3.3-70B-Instruct',
+      'OLMoE-1B-7B-0924-Instruct': 'OLMoE-1B-7B-0924-Instruct',
+      'meta_llama_Meta_Llama_3_8B_Instruct': 'Meta-Llama-3-8B-Instruct',
+      'mistralai_Mistral_7B_Instruct_v0.3': 'Mistral-7B-Instruct-v0.3',
+      'meta_llama_Llama_3.2_1B_Instruct': 'Llama-3.2-1B-Instruct',
+      'meta_llama_Llama_3.2_3B_Instruct': 'Llama-3.2-3B-Instruct',
+      'allenai_OLMoE_1B_7B_0924_Instruct': 'OLMoE-1B-7B-0924-Instruct'
+    };
+
+    // Function to format dataset names for display
+    function formatDatasetName(dataset) {
+      return dataset.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    // Populate dataset selector
+    function populateDatasetSelector(selectorId) {
+      const selector = document.getElementById(selectorId);
+      if (!selector) return;
+      
+      selector.innerHTML = '<option value="">Choose a dataset...</option>';
+      allDatasets.forEach((dataset, index) => {
+        const option = document.createElement('option');
+        option.value = dataset;
+        option.textContent = formatDatasetName(dataset);
+        // Set first dataset as selected by default
+        if (index === 0) {
+          option.selected = true;
+        }
+        selector.appendChild(option);
+      });
+    }
+
+    // Tab switching functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize dataset selectors
+      populateDatasetSelector('dataset-select-zfs');
+      populateDatasetSelector('dataset-select-pv');
+
+      const tabs = document.querySelectorAll('.tabs li');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Remove active class from all tabs and contents
+          tabs.forEach(t => t.classList.remove('is-active'));
+          tabContents.forEach(content => content.classList.remove('is-active'));
+          
+          // Add active class to clicked tab
+          this.classList.add('is-active');
+          
+          // Show corresponding content
+          const tabId = this.getAttribute('data-tab');
+          document.getElementById(tabId).classList.add('is-active');
+          
+          // Load default graph if needed
+          if (tabId === 'few-shot-variance') {
+            loadZeroFewShotGraph('mmlu_abstract_algebra');
+          } else if (tabId === 'success-rate-distribution') {
+            loadQuestionRobustnessGraph('meta_llama_Meta_Llama_3_8B_Instruct');
+          } else if (tabId === 'accuracy-marginalization') {
+            loadPromptElementsGraph('Meta-Llama-3-8B-Instruct', 'mmlu_abstract_algebra', 'combined');
+          }
+        });
+      });
+
+      // Setup all controls
+      setupPerformanceVariationsControls();
+      setupFewShotVarianceControls();
+      setupSuccessRateDistributionControls();
+      setupAccuracyMarginalizationControls();
+      
+      // Load default graphs only for the active tab (Performance Variations)
+      loadPerformanceVariationsGraph('mmlu_abstract_algebra');
+    });
+
+    // Accuracy Marginalization controls
+    function setupAccuracyMarginalizationControls() {
+      const modelSelect = document.getElementById('model-select-pe');
+      const datasetSelect = document.getElementById('dataset-select-pe');
+      const shotSelector = document.getElementById('shot-selector-pe');
+      const shotButtons = shotSelector.querySelectorAll('.shot-button');
+
+      // Populate dataset selector initially
+      populateDatasetSelector('dataset-select-pe');
+
+      modelSelect.addEventListener('change', function() {
+        if (this.value) {
+          datasetSelect.disabled = false;
+          populateDatasetSelector('dataset-select-pe');
+        } else {
+          datasetSelect.disabled = true;
+          datasetSelect.innerHTML = '<option value="">Choose a dataset...</option>';
+          shotSelector.style.display = 'none';
+          clearGraph('pe');
+        }
+      });
+
+      datasetSelect.addEventListener('change', function() {
+        if (this.value && modelSelect.value) {
+          shotSelector.style.display = 'flex';
+          loadPromptElementsGraph(modelSelect.value, this.value, 'combined');
+        } else {
+          shotSelector.style.display = 'none';
+          clearGraph('pe');
+        }
+      });
+
+      shotButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          shotButtons.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          if (modelSelect.value && datasetSelect.value) {
+            loadPromptElementsGraph(modelSelect.value, datasetSelect.value, this.getAttribute('data-shot'));
+          }
+        });
+      });
+    }
+
+    // Success Rate Distribution controls
+    function setupSuccessRateDistributionControls() {
+      const modelSelect = document.getElementById('model-select-qr');
+
+      modelSelect.addEventListener('change', function() {
+        if (this.value) {
+          loadQuestionRobustnessGraph(this.value);
+        } else {
+          clearGraph('qr');
+        }
+      });
+    }
+
+    // Few-Shot Performance Variance controls
+    function setupFewShotVarianceControls() {
+      const datasetSelect = document.getElementById('dataset-select-zfs');
+      
+      // Populate with all datasets
+      populateDatasetSelector('dataset-select-zfs');
+
+      datasetSelect.addEventListener('change', function() {
+        if (this.value) {
+          loadZeroFewShotGraph(this.value);
+        } else {
+          clearGraph('zfs');
+        }
+      });
+    }
+
+    // Performance Variations controls
+    function setupPerformanceVariationsControls() {
+      const datasetSelect = document.getElementById('dataset-select-pv');
+      
+      // Populate with all datasets
+      populateDatasetSelector('dataset-select-pv');
+
+      datasetSelect.addEventListener('change', function() {
+        if (this.value) {
+          loadPerformanceVariationsGraph(this.value);
+        } else {
+          clearGraph('pv');
+        }
+      });
+    }
+
+    // Graph loading functions
+    function loadPromptElementsGraph(model, dataset, shot) {
+      const graphContainer = document.getElementById('graph-container-pe');
+      const graphTitle = document.getElementById('graph-title-pe');
+      
+      // Add specific class for this graph type
+      graphContainer.className = 'graph-container prompt-elements-type';
+      console.log('Added prompt-elements-type class to container');
+      
+      const imagePath = `src/plotting/plots/accuracy_marginalization/${model}/${dataset}/prompt_elements_analysis_${shot}.png`;
+      
+      graphTitle.textContent = `Prompt Elements Analysis`;
+      
+      // Create image element properly
+      const img = document.createElement('img');
+      img.src = imagePath;
+      img.alt = 'Prompt Elements Analysis';
+      img.className = 'graph-image';
+      img.style.maxHeight = '1200px'; // Inline style as backup - increased size
+      img.style.width = '100%';
+      img.style.height = 'auto';
+      img.onclick = function() { window.open(this.src, '_blank'); };
+      img.onerror = function() {
+        graphContainer.innerHTML = '<div class="placeholder-text"><p>Graph not found for this selection</p></div>';
+      };
+      
+      graphContainer.innerHTML = '';
+      graphContainer.appendChild(img);
+      
+      console.log('Prompt elements image loaded with max-height:', img.style.maxHeight);
+    }
+
+    function loadQuestionRobustnessGraph(model) {
+      const graphContainer = document.getElementById('graph-container-qr');
+      const graphTitle = document.getElementById('graph-title-qr');
+      
+      // Add specific class for this graph type
+      graphContainer.className = 'graph-container robustness-type';
+      
+      const imagePath = `src/plotting/plots/success_rate_distribution/${model}/robustness_histogram.png`;
+      
+      graphTitle.textContent = ``;
+      
+      // Create image element properly
+      const img = document.createElement('img');
+      img.src = imagePath;
+      img.alt = 'Per Question Robustness';
+      img.className = 'graph-image';
+      img.onclick = function() { window.open(this.src, '_blank'); };
+      img.onerror = function() {
+        graphContainer.innerHTML = '<div class="placeholder-text"><p>Graph not found for this selection</p></div>';
+      };
+      
+      graphContainer.innerHTML = '';
+      graphContainer.appendChild(img);
+    }
+
+    function loadZeroFewShotGraph(dataset) {
+      const graphContainer = document.getElementById('graph-container-zfs');
+      const graphTitle = document.getElementById('graph-title-zfs');
+      
+      // Add specific class for this graph type
+      graphContainer.className = 'graph-container zero-few-shot-type';
+      
+      const imagePath = `src/plotting/plots/few_shot_variance/${dataset}/zero_few_shot_comparison.png`;
+      
+      graphTitle.textContent = `Zero/Few Shot Analysis`;
+      
+      // Create image element properly
+      const img = document.createElement('img');
+      img.src = imagePath;
+      img.alt = 'Zero/Few Shot Analysis';
+      img.className = 'graph-image';
+      img.onclick = function() { window.open(this.src, '_blank'); };
+      img.onerror = function() {
+        graphContainer.innerHTML = '<div class="placeholder-text"><p>Graph not found for this selection</p></div>';
+      };
+      
+      graphContainer.innerHTML = '';
+      graphContainer.appendChild(img);
+    }
+
+    function loadPerformanceVariationsGraph(dataset) {
+      const graphContainer = document.getElementById('graph-container-pv');
+      const graphTitle = document.getElementById('graph-title-pv');
+      
+      // Add specific class for this graph type
+      graphContainer.className = 'graph-container performance-variations-type';
+      
+      const imagePath = `src/plotting/plots/performance_variations/${dataset}/performance_variations.png`;
+      
+      graphTitle.textContent = ``;
+      
+      // Create image element properly
+      const img = document.createElement('img');
+      img.src = imagePath;
+      img.alt = 'Performance Variations';
+      img.className = 'graph-image';
+      img.onclick = function() { window.open(this.src, '_blank'); };
+      img.onerror = function() {
+        graphContainer.innerHTML = '<div class="placeholder-text"><p>Graph not found for this selection</p></div>';
+      };
+      
+      graphContainer.innerHTML = '';
+      graphContainer.appendChild(img);
+    }
+
+    function clearGraph(type) {
+      const graphContainer = document.getElementById(`graph-container-${type}`);
+      const graphTitle = document.getElementById(`graph-title-${type}`);
+      
+      // Reset to default container class
+      graphContainer.className = 'graph-container';
+      
+      graphTitle.textContent = '';
+      
+      let placeholderIcon, placeholderText;
+      switch(type) {
+        case 'pv':
+          placeholderIcon = 'fas fa-chart-bar';
+          placeholderText = 'Select a dataset to view the performance variations analysis';
+          break;
+        case 'zfs':
+          placeholderIcon = 'fas fa-chart-line';
+          placeholderText = 'Select a dataset to view the few-shot performance variance analysis';
+          break;
+        case 'qr':
+          placeholderIcon = 'fas fa-shield-alt';
+          placeholderText = 'Select a model to view the success rate distribution analysis';
+          break;
+        case 'pe':
+          placeholderIcon = 'fas fa-cogs';
+          placeholderText = 'Select a model and dataset to view the accuracy marginalization analysis';
+          break;
+      }
+      
+      graphContainer.innerHTML = `
+        <div class="placeholder-text">
+          <i class="${placeholderIcon} fa-3x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
+          <p>${placeholderText}</p>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html> 

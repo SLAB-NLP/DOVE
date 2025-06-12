@@ -1,0 +1,12 @@
+python-dotenv~=1.1.0
+huggingface-hub~=0.27.0
+pandas~=2.2.3
+pyarrow~=18.1.0
+datasets~=3.6.0
+tqdm~=4.67.1
+argparse~=1.4.0
+matplotlib~=3.8.3
+numpy~=1.24.3
+jsonschema~=4.23.0
+termcolor~=2.4.0
+unitxt~=1.17.2
