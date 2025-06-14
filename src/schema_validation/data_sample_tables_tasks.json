@@ -65,6 +65,7 @@
         "language": "en",
         "sample_identifier": {
           "dataset_name": "FinQA",
+          "domain": "Finance",
           "hf_repo": "ibm/torr_finqa",
           "hf_split": "test",
           "hf_index": 0
@@ -76,7 +77,11 @@
             "has_header": true
           },
           "table_task": "qa",
-          "required_reasoning": "numerical_reasoning"
+          "reasoning_requirements": {
+            "knowledge_extraction": "required",
+            "textual_reasoning": "required",
+            "numerical_reasoning": "required"
+          }
         }
       },
       "output": {
@@ -163,6 +168,7 @@
         "language": "en",
         "sample_identifier": {
           "dataset_name": "TabFact",
+          "domain": "Wikipedia",
           "hf_repo": "ibm/torr_tabfact",
           "hf_split": "test",
           "hf_index": 42
@@ -182,7 +188,11 @@
             "has_header": true
           },
           "table_task": "fact_verification",
-          "required_reasoning": "knowledge_extraction"
+          "reasoning_requirements": {
+            "knowledge_extraction": "required",
+            "textual_reasoning": "required",
+            "numerical_reasoning": "partially_required"
+          }
         }
       },
       "output": {
@@ -273,6 +283,7 @@
         "language": "en",
         "sample_identifier": {
           "dataset_name": "QTSumm",
+          "domain": "Wikipedia",
           "hf_repo": "ibm/torr_qtsumm",
           "hf_split": "test",
           "hf_index": 15
@@ -284,7 +295,11 @@
             "has_header": true
           },
           "table_task": "summarization",
-          "required_reasoning": "textual_reasoning"
+          "reasoning_requirements": {
+            "knowledge_extraction": "required",
+            "textual_reasoning": "partially_required",
+            "numerical_reasoning": "not_required"
+          }
         }
       },
       "output": {
@@ -358,6 +373,7 @@
         "language": "en",
         "sample_identifier": {
           "dataset_name": "WikiTQ",
+          "domain": "Wikipedia",
           "hf_repo": "ibm/torr_wikitq",
           "hf_split": "test",
           "hf_index": 88
@@ -369,7 +385,11 @@
             "has_header": true
           },
           "table_task": "qa",
-          "required_reasoning": "knowledge_extraction"
+          "reasoning_requirements": {
+            "knowledge_extraction": "required",
+            "textual_reasoning": "required",
+            "numerical_reasoning": "partially_required"
+          }
         }
       },
       "output": {
@@ -491,6 +511,7 @@
         "language": "en",
         "sample_identifier": {
           "dataset_name": "TURL_CTA",
+          "domain": "Wikipedia",
           "hf_repo": "ibm/torr_turl_cta",
           "hf_split": "test",
           "hf_index": 33
@@ -512,7 +533,11 @@
             "has_header": false
           },
           "table_task": "entity_classification",
-          "required_reasoning": "knowledge_extraction"
+          "reasoning_requirements": {
+            "knowledge_extraction": "partially_required",
+            "textual_reasoning": "not_required",
+            "numerical_reasoning": "not_required"
+          }
         }
       },
       "output": {
