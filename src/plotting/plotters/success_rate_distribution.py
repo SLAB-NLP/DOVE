@@ -257,25 +257,14 @@ class SuccessRateDistributionAnalyzer:
                     print(f"⚠️  No data for {model_name} on {dataset} - skipping")
                     continue
 
-                # Filter data like in the original file
-                # Only 0-shot or without correct_first/correct_last in 5-shot
-                filtered_data = dataset_data[
-                    (dataset_data['dimensions_5: shots'] == 0) |
-                    (~dataset_data['dimensions_3: choices_order'].isin(["correct_first", "correct_last"]))
-                    ]
-
-                if filtered_data.empty:
-                    print(f"⚠️  No valid data after filtering for {model_name} on {dataset}")
-                    continue
-
                 # Add sample_index if not present
-                if 'sample_index' not in filtered_data.columns:
-                    filtered_data = filtered_data.reset_index()
-                    if 'sample_index' not in filtered_data.columns:
-                        filtered_data['sample_index'] = range(len(filtered_data))
+                if 'sample_index' not in dataset_data.columns:
+                    dataset_data = dataset_data.reset_index()
+                    if 'sample_index' not in dataset_data.columns:
+                        dataset_data['sample_index'] = range(len(dataset_data))
 
                 # Compute success rate statistics
-                dataset_question_stats = self._aggregate_samples_accuracy(filtered_data)
+                dataset_question_stats = self._aggregate_samples_accuracy(dataset_data)
 
                 if not dataset_question_stats.empty:
                     all_question_stats.append(dataset_question_stats)
