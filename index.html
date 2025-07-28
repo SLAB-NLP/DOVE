@@ -412,7 +412,7 @@
               </span>
               <!-- Paper link -->
               <span class="link-block">
-                <a href="https://arxiv.org/abs/2503.01622" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                <a href="https://aclanthology.org/2025.findings-acl.611/" target="_blank" class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                     <i class="ai ai-arxiv"></i>
                   </span>
@@ -1085,13 +1085,29 @@ print(f"- Mistral (en) formal_logic: {len(mistral_en_formal_logic)} examples")
       <div class="container is-max-desktop content">
         <h2 class="title">Citation</h2>
         <pre><code class="language-bibtex">@misc{habba2025dovelargescalemultidimensionalpredictions,
-      title={DOVE: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful LLM Evaluation}, 
-      author={Eliya Habba and Ofir Arviv and Itay Itzhak and Yotam Perlitz and Elron Bandel and Leshem Choshen and Michal Shmueli-Scheuer and Gabriel Stanovsky},
-      year={2025},
-      eprint={2503.01622},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2503.01622}, 
+      title=@inproceedings{habba-etal-2025-dove,
+    title = "{DOVE}: A Large-Scale Multi-Dimensional Predictions Dataset Towards Meaningful {LLM} Evaluation",
+    author = "Habba, Eliya  and
+      Arviv, Ofir  and
+      Itzhak, Itay  and
+      Perlitz, Yotam  and
+      Bandel, Elron  and
+      Choshen, Leshem  and
+      Shmueli-Scheuer, Michal  and
+      Stanovsky, Gabriel",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2025",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-acl.611/",
+    pages = "11744--11763",
+    ISBN = "979-8-89176-256-5",
+    abstract = "Recent work found that LLMs are sensitive to a wide range of arbitrary prompt dimensions, including the type of delimiters, answer enumerators, instruction wording, and more. This throws into question popular single-prompt evaluation practices. We present DOVE (Dataset Of Variation Evaluation) a large-scale dataset containing prompt perturbations of various evaluation benchmarks. In contrast to previous work, we examine LLM sensitivity from an holistic perspective, and assess the joint effects of perturbations along various dimensions, resulting in thousands of perturbations per instance. We evaluate several model families against DOVE, leading to several findings, including efficient methods for choosing well-performing prompts, observing that few-shot examples reduce sensitivity, and identifying instances which are inherently hard across all perturbations. DOVE consists of more than 250M prompt perturbations and model outputs, which we make publicly available to spur a community-wide effort toward meaningful, robust, and efficient evaluation. Browse the data, contribute, and more at: https://slab-nlp.github.io/DOVE"
 }</code></pre>
       </div>
     </section>
