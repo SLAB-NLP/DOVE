@@ -135,7 +135,6 @@
                 "dimensions": {
                     "type": "object",
                     "description": "Format-specific configuration dimensions",
-                    "required": ["choices_order", "enumerator", "instruction_phrasing", "separator", "shots"],
                     "properties": {
                         "choices_order": {
                             "type": "object",
@@ -185,8 +184,13 @@
                             "description": "Number of examples provided in the prompt",
                             "minimum": 0,
                             "maximum": 10
+                        },
+                        "prompt_format": {
+                            "type": "string",
+                            "description": "Prompt format template used to produce the formatted input"
                         }
-                    }
+                    },
+                    "required": ["instruction_phrasing", "shots"]
                 }
             }
         },
@@ -198,8 +202,19 @@
             "properties": {
                 "task_type": {
                     "type": "string",
-                    "description": "Type of the task",
-                    "enum": ["classification", "generation"]
+                    "description": "Type of the task. Includes generic and dataset-specific task types for filtering and analytics.",
+                    "enum": [
+                        "classification",
+                        "generation",
+                        "translation",
+                        "summarization",
+                        "extractive_qa",
+                        "math_problem_solving",
+                        "multi_hop_qa",
+                        "code_generation",
+                        "sentiment_classification",
+                        "multiple_choice_qa"
+                    ]
                 },
                 "raw_input": {
                     "anyOf": [
@@ -221,33 +236,15 @@
                         }
                     ]
                 },
-                "language":
-                {
+                "language": {
                     "type": "string",
                     "description": "Language of the input text",
-                    "examples":
-                            [
-                                "en",
-                                "fr",
-                                "de",
-                                "es",
-                                "it",
-                                "pt",
-                                "nl",
-                                "pl",
-                                "ru",
-                                "tr",
-                                "ar",
-                                "ja",
-                                "ko",
-                                "zh",
-                                "he"
-                            ]
+                    "examples": ["en", "fr", "de", "es", "it", "pt", "nl", "pl", "ru", "tr", "ar", "ja", "ko", "zh", "he"]
                 },
                 "sample_identifier": {
                     "type": "object",
                     "description": "Metadata to help identify and match the sample to the dataset",
-                    "required": ["dataset_name", "hf_repo","hf_split","hf_index"],
+                    "required": ["dataset_name", "hf_repo", "hf_split", "hf_index"],
                     "properties": {
                         "dataset_name": {
                             "type": "string",
@@ -257,7 +254,7 @@
                             "type": "string",
                             "description": "HuggingFace repository identifier"
                         },
-                        "hf_split":{
+                        "hf_split": {
                             "type": "string",
                             "description": "HuggingFace split identifier",
                             "enum": ["train", "test", "validation"]
