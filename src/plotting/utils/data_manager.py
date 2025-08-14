@@ -44,11 +44,9 @@ class DataManager:
 
         # Dataset configurations - now from config file
         self.interesting_datasets = ALL_DATASETS
+        # Minimal required columns; other dimensions are optional and may be null/missing per dataset
         self.required_columns = [
-            'dataset', 'sample_index', 'model',
-            'dimensions_5: shots', 'dimensions_4: instruction_phrasing_text', 'dimensions_2: separator',
-            'dimensions_1: enumerator', 'dimensions_3: choices_order',
-            'score'
+            'dataset', 'sample_index', 'model', 'score'
         ]
 
     def load_model_data(
@@ -144,6 +142,17 @@ class DataManager:
         # Combine results
         combined_df = pd.concat(results, ignore_index=True)
 
+        # Centralized in-place scaling for specific cases (e.g., humaneval + Pass@1)
+        # This simplifies downstream code by keeping a single 'score' column.
+        if 'dataset' in combined_df.columns and 'metric' in combined_df.columns:
+            metric_normalized = combined_df['metric'].astype(str).str.lower().str.replace(' ', '')
+            needs_scaling = (
+                combined_df['dataset'].isin(['humaneval']) &
+                metric_normalized.isin(['pass@1', 'pass1'])
+            )
+            if needs_scaling.any():
+                combined_df.loc[needs_scaling, 'score'] = combined_df.loc[needs_scaling, 'score'] * 100.0
+
         # Save to temporary cache
         # combined_df.to_parquet(cache_file, index=False)
         # print(f"Cached data saved for {model_name} (datasets: {len(datasets)}, shots: {shots_list}): {combined_df.shape}")
@@ -174,7 +183,8 @@ class DataManager:
         if len(datasets) == 1:
             dataset_name = datasets[0].replace('.', '_').replace('/', '_')
             shots_str = '_'.join(map(str, sorted(shots_list)))
-            filename = f"{model_filename}_{dataset_name}.parquet"
+            # Include shots in filename to avoid collisions between different shot configurations
+            filename = f"{model_filename}_{dataset_name}_{shots_str}shot.parquet"
         else:
             # If multiple datasets, create a combined identifier
             datasets_str = '_'.join([d.replace('.', '_').replace('/', '_') for d in sorted(datasets)])[
@@ -205,11 +215,22 @@ class DataManager:
             # Filter out unwanted configurations if needed
 
             # Remove duplicates
-            df = df.drop_duplicates(
-                subset=['dimensions_5: shots', 'dimensions_4: instruction_phrasing_text', 'dimensions_2: separator',
-                        'dimensions_1: enumerator',
-                        'dimensions_3: choices_order', 'model', 'dataset', 'sample_index']
-            )
+            # Drop duplicates using only columns that actually exist
+            duplicate_subset = [
+                col for col in [
+                    'dimensions_5: shots',
+                    'dimensions_4: instruction_phrasing_text',
+                    'dimensions_2: separator',
+                    'dimensions_1: enumerator',
+                    'dimensions_3: choices_order',
+                    'dimensions_6: prompt_format',
+                    'dimensions_7: few_shot_fingerprint',
+                    'model', 'dataset', 'sample_index'
+                ] if col in df.columns
+            ]
+
+            if duplicate_subset:
+                df = df.drop_duplicates(subset=duplicate_subset)
 
             return df
 
@@ -244,15 +265,33 @@ class DataManager:
         Returns:
             DataFrame with aggregated performance metrics
         """
-        if group_by_columns is None:
-            group_by_columns = [
-                'dimensions_5: shots', 'dimensions_4: instruction_phrasing_text', 'dimensions_2: separator',
-                'dimensions_1: enumerator',
-                'dimensions_3: choices_order', 'model', 'dataset'
-            ]
+        # Normalize column names to expected schema when possible
+        alias_mappings = {
+            'dimensions_5: shots': 'shots',
+            'dimensions_4: instruction_phrasing_text': 'template',
+            'dimensions_2: separator': 'separator',
+            'dimensions_1: enumerator': 'enumerator',
+            'dimensions_3: choices_order': 'choices_order',
+        }
+        for target_col, alias_col in alias_mappings.items():
+            if target_col not in data.columns and alias_col in data.columns:
+                data[target_col] = data[alias_col]
 
+        if group_by_columns is None:
+            # Start from a superset and keep only existing columns
+            group_by_columns = [
+                'dimensions_5: shots',
+                'dimensions_4: instruction_phrasing_text',
+                'dimensions_2: separator',
+                'dimensions_1: enumerator',
+                'dimensions_3: choices_order',
+                'dimensions_6: prompt_format',
+                'dimensions_7: few_shot_fingerprint',
+                'model', 'dataset'
+            ]
+        group_by_columns = [col for col in group_by_columns if col in data.columns]
         # Compute aggregated metrics
-        aggregated = data.groupby(group_by_columns).agg({
+        aggregated = data.groupby(group_by_columns, dropna=False).agg({
             'score': ['mean', 'std', 'count']
         }).reset_index()
 
@@ -270,7 +309,8 @@ class DataManager:
             datasets: Optional[List[str]] = None,
             shots_list: List[int] = [0, 5],
             aggregate: bool = True,
-            num_processes: int = 4
+            num_processes: int = 4,
+            force_reload: bool = False
     ) -> pd.DataFrame:
         """
         Load data for multiple models.
@@ -296,7 +336,8 @@ class DataManager:
                 shots_list=shots_list,
                 datasets=datasets,
                 num_processes=num_processes,
-                repo_files=repo_files
+                repo_files=repo_files,
+                force_reload=force_reload
             )
 
             if not model_data.empty:
