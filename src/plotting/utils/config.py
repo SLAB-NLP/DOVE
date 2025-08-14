@@ -5,6 +5,7 @@ Contains all shared config and configurations for different scripts.
 
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # =============================================================================
@@ -21,15 +22,16 @@ CACHE_DIR_ENV_VAR = "DOVE_CACHE_DIR"
 
 # Output Directory Configuration
 # Base directory where all plots will be saved
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parents[1] /  "plots"
+DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parents[1] / "plots"
 
 # Specific output directories for different plot types
 OUTPUT_DIRS = {
     'accuracy_marginalization': DEFAULT_OUTPUT_DIR / "accuracy_marginalization",
-    'few_shot_variance': DEFAULT_OUTPUT_DIR / "few_shot_variance", 
+    'few_shot_variance': DEFAULT_OUTPUT_DIR / "few_shot_variance",
     'performance_variations': DEFAULT_OUTPUT_DIR / "performance_variations",
     'success_rate_distribution': DEFAULT_OUTPUT_DIR / "success_rate_distribution",
 }
+
 
 def get_cache_directory() -> str:
     """
@@ -39,6 +41,7 @@ def get_cache_directory() -> str:
         Path to the cache directory
     """
     return os.getenv(CACHE_DIR_ENV_VAR, DEFAULT_CACHE_DIR)
+
 
 def get_output_directory(plot_type: str = None) -> Path:
     """
@@ -54,6 +57,7 @@ def get_output_directory(plot_type: str = None) -> Path:
     if plot_type is None:
         return DEFAULT_OUTPUT_DIR
     return OUTPUT_DIRS.get(plot_type, DEFAULT_OUTPUT_DIR / plot_type)
+
 
 # Model Configurations - Add or remove models as needed
 DEFAULT_MODELS = [
@@ -128,7 +132,7 @@ FULL_DATASETS = [
 ]
 
 # Processing Parameters - Adjust based on your system capabilities
-DEFAULT_SHOTS = [0, 5]  # Few-shot settings to test
+DEFAULT_SHOTS = [0, 2, 3, 5]  # Few-shot settings to test
 DEFAULT_NUM_PROCESSES = 2  # Number of parallel processes (adjust based on your CPU/RAM)
 DEFAULT_USE_CACHE = True  # Enable caching for faster subsequent runs
 
@@ -145,14 +149,14 @@ MODEL_DISPLAY_NAMES = {
     'meta-llama/Llama-3.2-3B-Instruct': 'Llama-3.2-3B-\nInstruct',
     'meta-llama/Meta-Llama-3-8B-Instruct': 'Llama-3-8B-\nInstruct',
     'mistralai/Mistral-7B-Instruct-v0.3': 'Mistral-7B-\nInstruct-v0.3',
-    'allenai/OLMoE-1B-7B-0924-Instruct': 'OLMoE-1B-7B\n0924-Instruct', 
+    'allenai/OLMoE-1B-7B-0924-Instruct': 'OLMoE-1B-7B\n0924-Instruct',
     'meta-llama/Llama-3.3-70B-Instruct': 'Llama-3.3-70B-\nInstruct',
 }
 
 # Color scheme for models (consistent across all plots)
 MODEL_COLOR_SCHEME = {
     'meta-llama/Llama-3.2-1B-Instruct': "#1f77b4",  # Blue
-    'meta-llama/Llama-3.2-3B-Instruct': "#d62728",   # Red
+    'meta-llama/Llama-3.2-3B-Instruct': "#d62728",  # Red
     'meta-llama/Meta-Llama-3-8B-Instruct': "#2ca02c",  # Green
     'mistralai/Mistral-7B-Instruct-v0.3': "#9467bd",  # Purple
     'allenai/OLMoE-1B-7B-0924-Instruct': "#ff7f0e",  # Orange
@@ -171,6 +175,7 @@ PLOT_STYLE = {
     'facecolor': 'white',
 }
 
+
 # =============================================================================
 # UTILITY FUNCTIONS - Internal use
 # =============================================================================
@@ -179,9 +184,11 @@ def get_model_display_name(model_name: str) -> str:
     """Get the display name for a model"""
     return MODEL_DISPLAY_NAMES.get(model_name, model_name.split('/')[-1])
 
+
 def get_model_color(model_name: str) -> str:
     """Get the color for a model"""
     return MODEL_COLOR_SCHEME.get(model_name, "#333333")
+
 
 def format_dataset_name(dataset_string: str) -> str:
     """
@@ -198,7 +205,7 @@ def format_dataset_name(dataset_string: str) -> str:
     special_mappings = {
         # Base datasets
         'ai2_arc.arc_challenge': "ARC Challenge",
-        'ai2_arc.arc_easy': "ARC Easy", 
+        'ai2_arc.arc_easy': "ARC Easy",
         'hellaswag': "HellaSwag",
         'openbook_qa': "OpenBook QA",
         'social_iqa': "Social IQA",
@@ -216,7 +223,7 @@ def format_dataset_name(dataset_string: str) -> str:
         'wmt14.en-cs': "WMT14 en→cs",
         'wmt14.en-ru': "WMT14 en→ru",
         'wmt14.ru-en': "WMT14 ru→en",
-        
+
         # MMLU datasets
         'mmlu.abstract_algebra': "MMLU Abstract Algebra",
         'mmlu.anatomy': "MMLU Anatomy",
@@ -275,7 +282,7 @@ def format_dataset_name(dataset_string: str) -> str:
         'mmlu.us_foreign_policy': "MMLU US Foreign Policy",
         'mmlu.virology': "MMLU Virology",
         'mmlu.world_religions': "MMLU World Religions",
-        
+
         # MMLU Pro datasets
         'mmlu_pro.history': "MMLU-Pro History",
         'mmlu_pro.law': "MMLU-Pro Law",
@@ -292,17 +299,17 @@ def format_dataset_name(dataset_string: str) -> str:
         'mmlu_pro.computer_science': "MMLU-Pro Computer Science",
         'mmlu_pro.engineering': "MMLU-Pro Engineering",
     }
-    
+
     # Return mapped name if exists, otherwise format automatically
     if dataset_string in special_mappings:
         return special_mappings[dataset_string]
-    
+
     # Auto-format for unmapped datasets
     if '.' in dataset_string:
         prefix, suffix = dataset_string.split('.', 1)
         suffix_formatted = suffix.replace('_', ' ').title()
         prefix_formatted = prefix.upper() if prefix.lower() in ['mmlu', 'arc'] else prefix.title()
         return f"{prefix_formatted} {suffix_formatted}"
-    
+
     # Simple case: just title case with underscores replaced
-    return dataset_string.replace('_', ' ').title() 
+    return dataset_string.replace('_', ' ').title()
