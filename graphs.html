@@ -371,6 +371,25 @@
               </div>
             </div>
           </div>
+
+          <div class="control-group">
+            <label class="control-label">View:</label>
+            <div class="shot-selector" id="mode-selector-qr">
+              <button class="shot-button active" data-mode="combined">Combined</button>
+              <button class="shot-button" data-mode="by-dataset">By Dataset</button>
+            </div>
+          </div>
+
+          <div class="control-group" id="dataset-group-qr" style="display: none;">
+            <label class="control-label">Select Dataset:</label>
+            <div class="select-container">
+              <div class="select is-medium">
+                <select id="dataset-select-qr">
+                  <option value="">Choose a dataset...</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="graph-title" id="graph-title-qr"></div>
@@ -434,6 +453,8 @@
                   <option value="Llama-3.2-3B-Instruct">Llama-3.2-3B-Instruct</option>
                   <option value="Llama-3.3-70B-Instruct">Llama-3.3-70B-Instruct</option>
                   <option value="OLMoE-1B-7B-0924-Instruct">OLMoE-1B-7B-0924-Instruct</option>
+                  <option value="GPT-4o-mini">GPT-4o-mini</option>
+
                 </select>
               </div>
             </div>
@@ -455,6 +476,8 @@
         <div class="shot-selector" id="shot-selector-pe" style="display: flex;">
           <button class="shot-button active" data-shot="combined">Combined</button>
           <button class="shot-button" data-shot="0shot">0-shot</button>
+          <button class="shot-button" data-shot="2shot">2-shot</button>
+          <button class="shot-button" data-shot="3shot">3-shot</button>
           <button class="shot-button" data-shot="5shot">5-shot</button>
         </div>
 
@@ -507,6 +530,7 @@
       'Llama-3.2-3B-Instruct': 'Llama-3.2-3B-Instruct',
       'Llama-3.3-70B-Instruct': 'Llama-3.3-70B-Instruct',
       'OLMoE-1B-7B-0924-Instruct': 'OLMoE-1B-7B-0924-Instruct',
+      'GPT-4o-mini' : 'GPT-4o-mini',
       'meta_llama_Meta_Llama_3_8B_Instruct': 'Meta-Llama-3-8B-Instruct',
       'mistralai_Mistral_7B_Instruct_v0.3': 'Mistral-7B-Instruct-v0.3',
       'meta_llama_Llama_3.2_1B_Instruct': 'Llama-3.2-1B-Instruct',
@@ -566,7 +590,7 @@
           if (tabId === 'few-shot-variance') {
             loadZeroFewShotGraph('mmlu_abstract_algebra');
           } else if (tabId === 'success-rate-distribution') {
-            loadQuestionRobustnessGraph('meta_llama_Meta_Llama_3_8B_Instruct');
+            loadSuccessRateDistributionGraph('meta_llama_Meta_Llama_3_8B_Instruct', 'combined');
           } else if (tabId === 'accuracy-marginalization') {
             loadPromptElementsGraph('Meta-Llama-3-8B-Instruct', 'mmlu_abstract_algebra', 'combined');
           }
@@ -630,10 +654,59 @@
     // Success Rate Distribution controls
     function setupSuccessRateDistributionControls() {
       const modelSelect = document.getElementById('model-select-qr');
+      const modeSelector = document.getElementById('mode-selector-qr');
+      const modeButtons = modeSelector ? modeSelector.querySelectorAll('.shot-button') : [];
+      const datasetGroup = document.getElementById('dataset-group-qr');
+      const datasetSelect = document.getElementById('dataset-select-qr');
+
+      // Populate datasets for this tab
+      if (datasetSelect) {
+        populateDatasetSelector('dataset-select-qr');
+      }
+
+      let currentMode = 'combined';
 
       modelSelect.addEventListener('change', function() {
         if (this.value) {
-          loadQuestionRobustnessGraph(this.value);
+          if (currentMode === 'combined') {
+            loadSuccessRateDistributionGraph(this.value, 'combined');
+          } else if (currentMode === 'by-dataset' && datasetSelect.value) {
+            loadSuccessRateDistributionGraph(this.value, 'by-dataset', datasetSelect.value);
+          } else {
+            clearGraph('qr');
+          }
+        } else {
+          clearGraph('qr');
+        }
+      });
+
+      modeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          modeButtons.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          currentMode = this.getAttribute('data-mode');
+
+          if (currentMode === 'combined') {
+            datasetGroup.style.display = 'none';
+            if (modelSelect.value) {
+              loadSuccessRateDistributionGraph(modelSelect.value, 'combined');
+            } else {
+              clearGraph('qr');
+            }
+          } else {
+            datasetGroup.style.display = 'block';
+            if (datasetSelect.value && modelSelect.value) {
+              loadSuccessRateDistributionGraph(modelSelect.value, 'by-dataset', datasetSelect.value);
+            } else {
+              clearGraph('qr');
+            }
+          }
+        });
+      });
+
+      datasetSelect.addEventListener('change', function() {
+        if (this.value && modelSelect.value && currentMode === 'by-dataset') {
+          loadSuccessRateDistributionGraph(modelSelect.value, 'by-dataset', this.value);
         } else {
           clearGraph('qr');
         }
@@ -681,7 +754,7 @@
       graphContainer.className = 'graph-container prompt-elements-type';
       console.log('Added prompt-elements-type class to container');
       
-      const imagePath = `src/plotting/plots/accuracy_marginalization/${model}/${dataset}/prompt_elements_analysis_${shot}.png`;
+      const imagePath = `src/plotting/plots/accuracy_marginalization/${model}/${dataset}/accuracy_marginalization_${shot}.png`;
       
       graphTitle.textContent = `Accuracy Marginalization Analysis`;
       
@@ -704,26 +777,60 @@
       console.log('Prompt elements image loaded with max-height:', img.style.maxHeight);
     }
 
-    function loadQuestionRobustnessGraph(model) {
+    function loadSuccessRateDistributionGraph(model, mode = 'combined', dataset = null) {
       const graphContainer = document.getElementById('graph-container-qr');
       const graphTitle = document.getElementById('graph-title-qr');
       
       // Add specific class for this graph type
       graphContainer.className = 'graph-container robustness-type';
       
-      const imagePath = `src/plotting/plots/success_rate_distribution/${model}/robustness_histogram.png`;
-      
-      graphTitle.textContent = ``;
+      graphTitle.textContent = mode === 'combined'
+        ? 'Success Rate Distribution (Combined)'
+        : `Success Rate Distribution - ${formatDatasetName(dataset)}`;
       
       // Create image element properly
       const img = document.createElement('img');
-      img.src = imagePath;
       img.alt = 'Per Question Robustness';
       img.className = 'graph-image';
       img.onclick = function() { window.open(this.src, '_blank'); };
-      img.onerror = function() {
-        graphContainer.innerHTML = '<div class="placeholder-text"><p>Graph not found for this selection</p></div>';
-      };
+
+      if (mode === 'combined') {
+        const candidates = [
+          `src/plotting/plots/success_rate_distribution/${model}/success_rate_distribution.png`,
+        ];
+        let tryIndex = 0;
+        img.onerror = function() {
+          if (tryIndex < candidates.length - 1) {
+            tryIndex += 1;
+            img.src = candidates[tryIndex];
+          } else {
+            graphContainer.innerHTML = '<div class="placeholder-text"><p>Graph not found for this selection</p></div>';
+          }
+        };
+        img.src = candidates[tryIndex];
+      } else {
+        const dsVariants = Array.from(new Set([
+          dataset,
+          (dataset || '').replace(/_/g, '.'),
+          (dataset || '').replace(/\./g, '_')
+        ]));
+        const candidates = [];
+        dsVariants.forEach(ds => {
+          candidates.push(
+            `src/plotting/plots/success_rate_distribution/${model}/success_rate_distribution_${ds}.png`,
+          );
+        });
+        let tryIndex = 0;
+        img.onerror = function() {
+          if (tryIndex < candidates.length - 1) {
+            tryIndex += 1;
+            img.src = candidates[tryIndex];
+          } else {
+            graphContainer.innerHTML = '<div class="placeholder-text"><p>Graph not found for this selection</p></div>';
+          }
+        };
+        img.src = candidates[tryIndex];
+      }
       
       graphContainer.innerHTML = '';
       graphContainer.appendChild(img);
