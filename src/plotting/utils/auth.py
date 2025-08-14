@@ -9,7 +9,6 @@ import os
 from dotenv import load_dotenv
 from huggingface_hub import login
 
-from src.plotting.utils.config import HF_ACCESS_TOKEN
 
 # Load environment variables from .env file
 load_dotenv()
@@ -30,8 +29,8 @@ def ensure_hf_authentication():
     if _hf_authenticated:
         return True
 
-    # Try environment variable first, then fallback to config value
-    hf_token = os.getenv('HF_ACCESS_TOKEN', HF_ACCESS_TOKEN)
+    # Read token from environment (loaded via dotenv)
+    hf_token = os.getenv('HF_ACCESS_TOKEN')
 
     # Skip if token is None or "None" string
     if not hf_token or hf_token == "None":

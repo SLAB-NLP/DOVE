@@ -5,19 +5,18 @@ Contains all shared config and configurations for different scripts.
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # =============================================================================
 # USER CONFIGURATION SECTION - Modify these values as needed
 # =============================================================================
 
-# HuggingFace Authentication
-# Set your HuggingFace token here OR set HF_ACCESS_TOKEN environment variable
-# DO NOT commit your actual token to version control! Use environment variables instead.
-HF_ACCESS_TOKEN = "None"  # Will be loaded from environment variables
-HF_ACCESS_TOKEN="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"
+# Load environment variables from .env if present
+load_dotenv()
 # Cache Directory Configuration
 # Directory where downloaded data will be cached (set to None to disable caching)
-DEFAULT_CACHE_DIR = "/Users/ehabba/PycharmProjects/DOVE/Data/dove_lite_data"
+# Fallback to a repository-relative default if env var is not set
+DEFAULT_CACHE_DIR = str(Path(__file__).resolve().parents[3] / "Data" / "dove_lite_data")
 CACHE_DIR_ENV_VAR = "DOVE_CACHE_DIR"
 
 # Output Directory Configuration
@@ -64,6 +63,8 @@ DEFAULT_MODELS = [
     'mistralai/Mistral-7B-Instruct-v0.3',
     'allenai/OLMoE-1B-7B-0924-Instruct',
     'meta-llama/Llama-3.3-70B-Instruct',
+    'openai/GPT-4o-mini',
+    'meta-llama/Llama-3.3-70B-Instruct'
 ]
 
 # Dataset Configurations - Choose which datasets to analyze
@@ -73,20 +74,30 @@ DEFAULT_DATASETS = [
     'mmlu.college_biology',
 ]
 
-# For comprehensive analysis with all 77 datasets:
-# 1. Comment out the quick setup above 
-# 2. Uncomment the full list below:
-# WARNING: Full analysis takes much longer and requires more memory!
-"""
-DEFAULT_DATASETS = [
-    # Full dataset list (comprehensive analysis):
+# Full dataset list: base datasets + user-requested datasets + all MMLU and MMLU-Pro subtasks
+FULL_DATASETS = [
     # Base datasets
     "ai2_arc.arc_challenge",
-    "ai2_arc.arc_easy", 
+    "ai2_arc.arc_easy",
     "hellaswag",
     "openbook_qa",
     "social_iqa",
     'quality',
+
+    # User-requested datasets
+    'humaneval',
+    'wmt14.en-hi',
+    'wmt14.hi-en',
+    'gsm8k',
+    'squad',
+    'sst',
+    'cnn_dailymail',
+    'musique',
+    'wmt14.cs-en',
+    'wmt14.en-cs',
+    'wmt14.en-ru',
+    'wmt14.ru-en',
+
     # MMLU subtasks
     "mmlu.abstract_algebra", "mmlu.anatomy", "mmlu.astronomy", "mmlu.business_ethics",
     "mmlu.clinical_knowledge", "mmlu.college_biology", "mmlu.college_chemistry",
@@ -108,13 +119,13 @@ DEFAULT_DATASETS = [
     "mmlu.professional_law", "mmlu.professional_medicine", "mmlu.professional_psychology",
     "mmlu.public_relations", "mmlu.security_studies", "mmlu.sociology",
     "mmlu.us_foreign_policy", "mmlu.virology", "mmlu.world_religions",
+
     # MMLU Pro subtasks
-    "mmlu_pro.history", "mmlu_pro.law", "mmlu_pro.health", "mmlu_pro.physics", 
-    "mmlu_pro.business", "mmlu_pro.other", "mmlu_pro.philosophy", "mmlu_pro.psychology", 
-    "mmlu_pro.economics", "mmlu_pro.math", "mmlu_pro.biology", "mmlu_pro.chemistry", 
+    "mmlu_pro.history", "mmlu_pro.law", "mmlu_pro.health", "mmlu_pro.physics",
+    "mmlu_pro.business", "mmlu_pro.other", "mmlu_pro.philosophy", "mmlu_pro.psychology",
+    "mmlu_pro.economics", "mmlu_pro.math", "mmlu_pro.biology", "mmlu_pro.chemistry",
     "mmlu_pro.computer_science", "mmlu_pro.engineering",
 ]
-"""
 
 # Processing Parameters - Adjust based on your system capabilities
 DEFAULT_SHOTS = [0, 5]  # Few-shot settings to test
@@ -126,7 +137,7 @@ DEFAULT_USE_CACHE = True  # Enable caching for faster subsequent runs
 # =============================================================================
 
 # All available datasets (comprehensive list - used internally)
-ALL_DATASETS = DEFAULT_DATASETS
+ALL_DATASETS = FULL_DATASETS
 
 # Model display names for plots (shorter with line breaks)
 MODEL_DISPLAY_NAMES = {
@@ -153,8 +164,8 @@ PLOT_STYLE = {
     'font_family': 'serif',
     'font_serif': ['DejaVu Serif'],
     'mathtext_fontset': 'dejavuserif',
-    'figure_dpi': 600,
-    'save_dpi': 300,
+    'figure_dpi': 300,
+    'save_dpi': 100,
     'bbox_inches': 'tight',
     'transparent': False,
     'facecolor': 'white',
@@ -192,6 +203,19 @@ def format_dataset_name(dataset_string: str) -> str:
         'openbook_qa': "OpenBook QA",
         'social_iqa': "Social IQA",
         'quality': "QuALITY",
+        # Additional base datasets
+        'humaneval': "HumanEval",
+        'gsm8k': "GSM8K",
+        'squad': "SQuAD",
+        'sst': "SST",
+        'cnn_dailymail': "CNN/DailyMail",
+        'musique': "MuSiQue",
+        'wmt14.en-hi': "WMT14 en→hi",
+        'wmt14.hi-en': "WMT14 hi→en",
+        'wmt14.cs-en': "WMT14 cs→en",
+        'wmt14.en-cs': "WMT14 en→cs",
+        'wmt14.en-ru': "WMT14 en→ru",
+        'wmt14.ru-en': "WMT14 ru→en",
         
         # MMLU datasets
         'mmlu.abstract_algebra': "MMLU Abstract Algebra",
