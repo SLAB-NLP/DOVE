@@ -21,7 +21,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from src.plotting.utils.config import (
-    DEFAULT_MODELS, DEFAULT_DATASETS, DEFAULT_SHOTS, DEFAULT_NUM_PROCESSES,
+    DEFAULT_MODELS, FULL_DATASETS, DEFAULT_SHOTS, DEFAULT_NUM_PROCESSES,
     PLOT_STYLE,
     get_model_display_name, format_dataset_name, get_output_directory
 )
@@ -118,6 +118,8 @@ class AccuracyMarginalizationAnalyzer:
             "enumerator": "Enumerator",
             "separator": "Choice Separator",
             "choices_order": "Choice Order",
+            "prompt_format": "Prompt Format",
+            "few_shot_fingerprint": "Few-shot Fingerprint",
             "shots": "Number of Demonstrations"
         }
 
@@ -133,34 +135,60 @@ class AccuracyMarginalizationAnalyzer:
         """
         processed_df = df.copy()
 
-        # Change column names to format expected by original analyzer
+        # Change column names to format expected by analyzer; create columns if missing
         column_mapping = {
             'dimensions_4: instruction_phrasing_text': 'instruction_phrasing',
             'dimensions_1: enumerator': 'enumerator',
             'dimensions_2: separator': 'separator',
-            'dimensions_3: choices_order': 'choices_order'
+            'dimensions_3: choices_order': 'choices_order',
+            'dimensions_5: shots': 'shots',
+            'dimensions_6: prompt_format': 'prompt_format',
+            'dimensions_7: few_shot_fingerprint': 'few_shot_fingerprint',
         }
 
         for old_col, new_col in column_mapping.items():
-            processed_df[new_col] = processed_df[old_col]
+            if old_col in processed_df.columns:
+                processed_df[new_col] = processed_df[old_col]
+            else:
+                processed_df[new_col] = np.nan
 
         # Shorten model names
         processed_df['model_name'] = processed_df['model'].apply(lambda x: x.split('/')[-1])
         processed_df['model_name'] = processed_df['model_name'].apply(lambda x: x.replace('Meta-', ''))
 
-        # Fix separators
-        processed_df['separator'] = processed_df['separator'].str.replace('\n', '\\n')
+        # Fix separators if present
+        if 'separator' in processed_df.columns:
+            processed_df['separator'] = processed_df['separator'].where(
+                processed_df['separator'].isna(),
+                processed_df['separator'].astype(str).str.replace('\n', '\\n')
+            )
 
         # Map instruction_phrasings
         processed_df['instruction_phrasing'] = processed_df['instruction_phrasing'].map(
             self.instruction_phrasing_mapping).fillna(
             processed_df['instruction_phrasing'])
 
-        # Map enumerators
-        processed_df['enumerator'] = processed_df['enumerator'].map(self.enumerator_mapping).fillna(
-            processed_df['enumerator'])
+        # Map enumerators if present
+        if 'enumerator' in processed_df.columns:
+            processed_df['enumerator'] = processed_df['enumerator'].map(self.enumerator_mapping).fillna(
+                processed_df['enumerator'])
 
         return processed_df
+
+    def _filter_available_factors(self, df: pd.DataFrame, candidate_factors: List[str]) -> List[str]:
+        """Return factors that exist and are not all-null or constant within the dataset."""
+        available = []
+        for factor in candidate_factors:
+            if factor not in df.columns:
+                continue
+            series = df[factor]
+            non_null = series.dropna()
+            if non_null.empty:
+                continue
+            if non_null.nunique(dropna=True) <= 1:
+                continue
+            available.append(factor)
+        return available
 
     def _calculate_factor_widths(self, model_data: pd.DataFrame, factors: List[str]) -> List[float]:
         """Calculate appropriate width for each factor based on number of values."""
@@ -180,14 +208,10 @@ class AccuracyMarginalizationAnalyzer:
 
     def _get_label_settings(self, factor: str, num_values: int) -> Tuple[int, int, str]:
         """Get label font size, rotation, and alignment based on factor type."""
-        if factor == 'instruction_phrasing':
+        if factor in ['instruction_phrasing', 'choices_order', 'prompt_format',
+                         'few_shot_fingerprint']:
             # Always rotate instruction_phrasing labels due to long text
             label_fontsize = 8 if num_values > 6 else 9
-            label_rotation = 45
-            ha_alignment = 'right'
-        elif factor == 'choices_order':
-            # Always rotate choices_order labels due to long text
-            label_fontsize = 9
             label_rotation = 45
             ha_alignment = 'right'
         else:
@@ -352,10 +376,6 @@ class AccuracyMarginalizationAnalyzer:
                     bbox_inches=PLOT_STYLE['bbox_inches'],
                     transparent=PLOT_STYLE['transparent'],
                     facecolor=PLOT_STYLE['facecolor'])
-        plt.savefig(f'{model_dataset_output_dir}/{filename}.pdf',
-                    bbox_inches=PLOT_STYLE['bbox_inches'],
-                    transparent=PLOT_STYLE['transparent'],
-                    facecolor=PLOT_STYLE['facecolor'])
 
         plt.close()
 
@@ -383,13 +403,21 @@ class AccuracyMarginalizationAnalyzer:
             output_dir = get_output_directory('accuracy_marginalization')
         
         if factors is None:
-            factors = ["instruction_phrasing", "enumerator", "separator", "choices_order"]
+            factors = [
+                "instruction_phrasing", "enumerator", "separator",
+                "choices_order", "prompt_format", "few_shot_fingerprint"
+            ]
 
         # Filter data for specific dataset and shots
-        dataset_data = data[
-            (data['dataset'] == dataset_name) &
-            (data['dimensions_5: shots'] == shots)
-            ].copy()
+        dataset_data = data[(data['dataset'] == dataset_name)].copy()
+
+        # Ensure shots column is normalized for filtering
+        if 'shots' not in dataset_data.columns and 'dimensions_5: shots' in dataset_data.columns:
+            dataset_data['shots'] = dataset_data['dimensions_5: shots']
+
+        # Apply the shots filter if possible
+        if 'shots' in dataset_data.columns:
+            dataset_data = dataset_data[dataset_data['shots'] == shots].copy()
 
         if dataset_data.empty:
             print(f"⚠️  No data found for dataset: {dataset_name}, shots: {shots} - skipping")
@@ -411,8 +439,8 @@ class AccuracyMarginalizationAnalyzer:
             print(f"⚠️  No models have data for dataset {dataset_name}, shots: {shots} - skipping plot")
             return
 
-        # Filter factors that exist in data
-        available_factors = [f for f in factors if not processed_data[f].isna().all()]
+        # Filter factors that exist and are informative (not all-null or constant)
+        available_factors = self._filter_available_factors(processed_data, factors)
 
         if not available_factors:
             print(f"⚠️  No valid factors found for dataset {dataset_name} - skipping")
@@ -422,7 +450,7 @@ class AccuracyMarginalizationAnalyzer:
             f"📊 Creating accuracy marginalization analysis for {dataset_name} with {len(models_with_data)} models and {len(available_factors)} factors")
         print(f"   Will create separate plot for each model")
 
-        shots_text = "Zero-shot" if shots == 0 else f"{shots}-shot"
+        shots_text = f"{shots}-shot"
 
         # Create separate graph for each model
         for model in models_with_data:
@@ -488,7 +516,10 @@ class AccuracyMarginalizationAnalyzer:
             output_dir = get_output_directory('accuracy_marginalization')
         
         if factors is None:
-            factors = ["instruction_phrasing", "enumerator", "separator", "choices_order", "shots"]
+            factors = [
+                "instruction_phrasing", "enumerator", "separator",
+                "choices_order", "prompt_format", "few_shot_fingerprint", "shots"
+            ]
 
         # Filter data for specific dataset (all shots)
         dataset_data = data[data['dataset'] == dataset_name].copy()
@@ -500,8 +531,12 @@ class AccuracyMarginalizationAnalyzer:
         # Preprocessing
         processed_data = self._preprocess_data(dataset_data)
 
-        # Add shots as a factor
-        processed_data['shots'] = processed_data['dimensions_5: shots'].astype(str) + '-shot'
+        # Add shots as a factor (human-readable for combined plots)
+        if 'shots' not in processed_data.columns and 'dimensions_5: shots' in processed_data.columns:
+            processed_data['shots'] = processed_data['dimensions_5: shots']
+        if 'shots' in processed_data.columns:
+            processed_data['shots'] = processed_data['shots'].astype(int)
+            processed_data['shots'] = processed_data['shots'].astype(str) + '-shot'
 
         # Check which models have data
         models_with_data = []
@@ -516,8 +551,8 @@ class AccuracyMarginalizationAnalyzer:
             print(f"⚠️  No models have data for dataset {dataset_name} - skipping combined plot")
             return
 
-        # Filter factors that exist in data
-        available_factors = [f for f in factors if not processed_data[f].isna().all()]
+        # Filter factors that exist and are informative (not all-null or constant)
+        available_factors = self._filter_available_factors(processed_data, factors)
 
         if not available_factors:
             print(f"⚠️  No valid factors found for dataset {dataset_name} - skipping combined analysis")
@@ -581,12 +616,12 @@ Examples:
     parser.add_argument('--models', nargs='+', default=DEFAULT_MODELS,
                         help=f'List of models to analyze (default: {len(DEFAULT_MODELS)} models)')
 
-    parser.add_argument('--datasets', nargs='+', default=DEFAULT_DATASETS,
-                        help=f'List of datasets to analyze (default: {len(DEFAULT_DATASETS)} datasets)')
+    parser.add_argument('--datasets', nargs='+', default=FULL_DATASETS,
+                        help=f'List of datasets to analyze (default: {len(FULL_DATASETS)} datasets)')
 
     parser.add_argument('--factors', nargs='+',
-                        default=['instruction_phrasing', 'enumerator', 'separator', 'choices_order'],
-                        choices=['instruction_phrasing', 'enumerator', 'separator', 'choices_order'],
+                        default=['instruction_phrasing', 'enumerator', 'separator', 'choices_order', 'prompt_format', 'few_shot_fingerprint'],
+                        choices=['instruction_phrasing', 'enumerator', 'separator', 'choices_order', 'prompt_format', 'few_shot_fingerprint'],
                         help='List of prompt factors to analyze (default: instruction_phrasing enumerator separator choices_order)')
 
     parser.add_argument('--shots', nargs='+', type=int, default=DEFAULT_SHOTS,
@@ -631,7 +666,7 @@ def main() -> None:
 
     if args.list_datasets:
         print("Default datasets:")
-        for i, dataset in enumerate(DEFAULT_DATASETS, 1):
+        for i, dataset in enumerate(FULL_DATASETS, 1):
             print(f"  {i}. {dataset}")
         return
 
@@ -700,7 +735,8 @@ def main() -> None:
                 datasets=[dataset],
                 shots_list=shots_to_evaluate,
                 aggregate=True,
-                num_processes=num_processes
+                num_processes=num_processes,
+                force_reload=force_overwrite
             )
             if dataset_data.empty:
                 print(f"⚠️  No data loaded for dataset: {dataset} - skipping")

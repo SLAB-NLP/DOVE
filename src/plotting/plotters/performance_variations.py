@@ -17,13 +17,14 @@ import pandas as pd
 
 matplotlib.use('Agg')  # Non-interactive backend - no display windows
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 from pathlib import Path
 from typing import List
 from tqdm import tqdm
 
 from src.plotting.utils.data_manager import DataManager
 from src.plotting.utils.config import (
-    DEFAULT_MODELS, DEFAULT_DATASETS, DEFAULT_SHOTS, DEFAULT_NUM_PROCESSES,
+    DEFAULT_MODELS, FULL_DATASETS, DEFAULT_SHOTS, DEFAULT_NUM_PROCESSES,
     PLOT_STYLE,
     get_model_display_name, get_model_color, format_dataset_name, get_output_directory
 )
@@ -73,6 +74,16 @@ class PerformanceVariationsAnalyzer:
         darker_rgb = tuple(int(c * 0.7) for c in rgb)
         return '#{:02x}{:02x}{:02x}'.format(*darker_rgb)
 
+    def _lighten_color(self, hex_color: str, amount: float) -> str:
+        """
+        Lighten a hex color by a given amount in [0, 1].
+        amount=0 returns the original color; amount=1 returns white.
+        """
+        amount = max(0.0, min(1.0, amount))
+        rgb = tuple(int(hex_color.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+        light_rgb = tuple(int(c + (255 - c) * amount) for c in rgb)
+        return '#{:02x}{:02x}{:02x}'.format(*light_rgb)
+
     def create_performance_plot(
             self,
             data: pd.DataFrame,
@@ -93,7 +104,7 @@ class PerformanceVariationsAnalyzer:
         """
         if output_dir is None:
             output_dir = get_output_directory('performance_variations')
-        
+
         # Filter data for the specific dataset (all shots)
         dataset_data = data[data['dataset'] == dataset_name].copy()
 
@@ -104,7 +115,12 @@ class PerformanceVariationsAnalyzer:
         # Check that at least one model has data
         models_with_data = []
         for model in models:
-            model_data = dataset_data[dataset_data['model'] == model]
+            # Support both full model name and short name
+            model_short = model.split('/')[-1]
+            model_data = dataset_data[
+                (dataset_data['model'] == model) |
+                (dataset_data['model'] == model_short)
+                ]
             if model_data.empty:
                 print(f"⚠️  No data for model {model} on dataset {dataset_name} - skipping this model")
                 continue
@@ -152,9 +168,19 @@ class PerformanceVariationsAnalyzer:
         model_spacing = 0.1  # Spacing between models
         shot_spacing = 0.02  # Spacing between shots of the same model
 
+        # Determine which shot counts exist for this dataset intersected with requested shots
+        available_dataset_shots = list(sorted(set(dataset_data['dimensions_5: shots'].unique())))
+        shots_available = [s for s in shots_list if s in available_dataset_shots]
+        max_index = max(0, len(shots_available) - 1)
+
         # For each model with data
         for model_idx, model in enumerate(models_with_data):
-            model_data = dataset_data[dataset_data['model'] == model]
+            # Support both full model name and short name
+            model_short = model.split('/')[-1]
+            model_data = dataset_data[
+                (dataset_data['model'] == model) |
+                (dataset_data['model'] == model_short)
+                ]
 
             # Calculate base position for this model
             model_center = model_idx * (model_group_width + model_spacing)
@@ -162,22 +188,34 @@ class PerformanceVariationsAnalyzer:
             # Colors from config file
             base_color = get_model_color(model)
 
-            # For each shot count
-            for shot_idx, shots in enumerate(shots_list):
+            # Determine which shots actually have data for this model
+            model_shots_present = [
+                shots for shots in shots_list
+                if not model_data[model_data['dimensions_5: shots'] == shots].empty
+            ]
+
+            # If no shots have data for this model, skip plotting this model
+            if not model_shots_present:
+                continue
+
+            # For each shot count that has data
+            for shot_idx, shots in enumerate(model_shots_present):
                 shot_data = model_data[model_data['dimensions_5: shots'] == shots]
 
                 if shot_data.empty:
                     continue
 
                 # Calculate position for this shot count
-                shots_offset = (shot_idx - (len(shots_list) - 1) / 2) * (shot_width + shot_spacing)
+                shots_offset = (shot_idx - (len(model_shots_present) - 1) / 2) * (shot_width + shot_spacing)
                 shot_center = model_center + shots_offset
 
-                # Colors by shot count
-                if shots == 0:
-                    color = self._create_lighter_color(base_color)  # Lighter for 0-shot
+                # Colors by shot count: lighter for fewer shots, consistent across models
+                if max_index == 0:
+                    lighten_amount = 0.0
                 else:
-                    color = base_color  # Regular color for few-shot
+                    shot_rank = shots_available.index(shots)
+                    lighten_amount = 0.35 * (max_index - shot_rank) / max_index
+                color = self._lighten_color(base_color, lighten_amount)
 
                 # Accuracy data
                 accuracies = shot_data['accuracy'].values * 100
@@ -185,14 +223,12 @@ class PerformanceVariationsAnalyzer:
                 # Jitter for scatter points
                 x = np.random.normal(shot_center, shot_width * 0.15, size=len(accuracies))
 
-                # Plot scatter points
-                shot_label = f'{shots}-shot' if shots > 0 else '0-shot'
+                # Plot scatter points (legend handled separately)
                 ax.scatter(x, accuracies,
                            alpha=0.6,
                            s=20,
                            c=[color],
-                           zorder=2,
-                           label=shot_label if model_idx == 0 else "")  # Label only for first model
+                           zorder=2)
 
                 # Add boxplot
                 bp = ax.boxplot([accuracies],
@@ -229,9 +265,23 @@ class PerformanceVariationsAnalyzer:
         plt.title(f'{formatted_dataset_name}\nPerformance Variations',
                   fontsize=18, fontfamily='DejaVu Serif', pad=20)
 
-        # Legend
-        ax.legend(fontsize=14, loc='upper right', frameon=True,
-                  fancybox=True, shadow=True, ncol=1)
+        # Legend: one entry per shot count with neutral shades, labeled with exact shot count
+        legend_elements = []
+        neutral_base = '#808080'
+        for idx, shots in enumerate(shots_available):
+            if max_index == 0:
+                lighten_amount = 0.0
+            else:
+                lighten_amount = 0.35 * (max_index - idx) / max_index
+            shot_color = self._lighten_color(neutral_base, lighten_amount)
+            legend_elements.append(
+                Patch(facecolor=shot_color,
+                      edgecolor=self._create_darker_color(shot_color),
+                      label=f'{shots}-shot')
+            )
+        if legend_elements:
+            ax.legend(handles=legend_elements, fontsize=14, loc='upper right', frameon=True,
+                      fancybox=True, shadow=True, ncol=1)
 
         # Create directory by dataset
         safe_dataset_name = dataset_name.replace('.', '_').replace('/', '_')
@@ -244,10 +294,10 @@ class PerformanceVariationsAnalyzer:
                     bbox_inches=PLOT_STYLE['bbox_inches'],
                     transparent=PLOT_STYLE['transparent'],
                     facecolor=PLOT_STYLE['facecolor'])
-        plt.savefig(f'{dataset_output_dir}/performance_variations.pdf',
-                    bbox_inches=PLOT_STYLE['bbox_inches'],
-                    transparent=PLOT_STYLE['transparent'],
-                    facecolor=PLOT_STYLE['facecolor'])
+        # plt.savefig(f'{dataset_output_dir}/performance_variations.pdf',
+        #             bbox_inches=PLOT_STYLE['bbox_inches'],
+        #             transparent=PLOT_STYLE['transparent'],
+        #             facecolor=PLOT_STYLE['facecolor'])
 
         plt.close()
         print(
@@ -275,7 +325,7 @@ class PerformanceVariationsAnalyzer:
         """
         if output_dir is None:
             output_dir = get_output_directory('performance_variations')
-        
+
         # Filter data for the specific dataset (all shots)
         dataset_data = data[data['dataset'] == dataset_name].copy()
 
@@ -286,7 +336,12 @@ class PerformanceVariationsAnalyzer:
         # Check that at least one model has data
         models_with_data = []
         for model in models:
-            model_data = dataset_data[dataset_data['model'] == model]
+            # Support both full model name and short name
+            model_short = model.split('/')[-1]
+            model_data = dataset_data[
+                (dataset_data['model'] == model) |
+                (dataset_data['model'] == model_short)
+                ]
             if model_data.empty:
                 print(f"⚠️  No data for model {model} on dataset {dataset_name} - skipping this model")
                 continue
@@ -336,7 +391,12 @@ class PerformanceVariationsAnalyzer:
 
         # For each model with data
         for model_idx, model in enumerate(models_with_data):
-            model_data = dataset_data[dataset_data['model'] == model]
+            # Support both full model name and short name
+            model_short = model.split('/')[-1]
+            model_data = dataset_data[
+                (dataset_data['model'] == model) |
+                (dataset_data['model'] == model_short)
+                ]
 
             # Combine all model data (all shots together)
             all_model_data = []
@@ -375,11 +435,12 @@ class PerformanceVariationsAnalyzer:
                             patch_artist=True,
                             medianprops=dict(color='black'),
                             flierprops=dict(marker='none'),
-                            boxprops=dict(facecolor='white',
-                                          color=color,
-                                          alpha=0.3),
-                            whiskerprops=dict(color=color),
-                            capprops=dict(color=color),
+                            boxprops=dict(facecolor=color,
+                                          color=self._create_darker_color(color),
+                                          alpha=0.7,
+                                          linewidth=1.2),
+                            whiskerprops=dict(color=self._create_darker_color(color)),
+                            capprops=dict(color=self._create_darker_color(color)),
                             showfliers=False)
 
         # Style the plot
@@ -413,10 +474,6 @@ class PerformanceVariationsAnalyzer:
                     bbox_inches=PLOT_STYLE['bbox_inches'],
                     transparent=PLOT_STYLE['transparent'],
                     facecolor=PLOT_STYLE['facecolor'])
-        plt.savefig(f'{dataset_output_dir}/performance_variations_unified.pdf',
-                    bbox_inches=PLOT_STYLE['bbox_inches'],
-                    transparent=PLOT_STYLE['transparent'],
-                    facecolor=PLOT_STYLE['facecolor'])
 
         plt.close()
         print(
@@ -440,8 +497,8 @@ Examples:
     parser.add_argument('--models', nargs='+', default=DEFAULT_MODELS,
                         help=f'List of models to analyze (default: {len(DEFAULT_MODELS)} models)')
 
-    parser.add_argument('--datasets', nargs='+', default=DEFAULT_DATASETS,
-                        help=f'List of datasets to analyze (default: {len(DEFAULT_DATASETS)} datasets)')
+    parser.add_argument('--datasets', nargs='+', default=FULL_DATASETS,
+                        help=f'List of datasets to analyze (default: {len(FULL_DATASETS)} datasets)')
 
     parser.add_argument('--shots', nargs='+', type=int, default=DEFAULT_SHOTS,
                         help=f'List of shot counts to analyze (default: {DEFAULT_SHOTS})')
@@ -486,7 +543,7 @@ def main():
 
     if args.list_datasets:
         print("Default datasets:")
-        for i, dataset in enumerate(DEFAULT_DATASETS, 1):
+        for i, dataset in enumerate(FULL_DATASETS, 1):
             print(f"  {i}. {dataset}")
         return
 
@@ -549,7 +606,6 @@ def main():
                     models=models_to_evaluate,
                     shots_list=shots_to_evaluate,
                     output_dir=output_dir,
-                    force_overwrite=True  # Always True here, since we already checked
                 )
             else:
                 print(f"⏭️  Skipping combined plot for {dataset} - file exists")
@@ -560,7 +616,6 @@ def main():
                     models=models_to_evaluate,
                     shots_list=shots_to_evaluate,
                     output_dir=output_dir,
-                    force_overwrite=True  # Always True here, since we already checked
                 )
             else:
                 print(f"⏭️  Skipping unified plot for {dataset} - file exists")

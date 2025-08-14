@@ -23,7 +23,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from src.plotting.utils.config import (
-    DEFAULT_MODELS, DEFAULT_DATASETS, DEFAULT_SHOTS, PLOT_STYLE,
+    DEFAULT_MODELS, FULL_DATASETS, DEFAULT_SHOTS, PLOT_STYLE,
     get_model_display_name, get_output_directory
 )
 from src.plotting.utils.data_manager import DataManager
@@ -89,7 +89,9 @@ class SuccessRateDistributionAnalyzer:
             self,
             question_stats: pd.DataFrame,
             model_name: str,
-            output_dir: Path = None
+            output_dir: Path = None,
+            dataset_name: str = None,
+            force_overwrite: bool = False
     ):
         """
         Create success rate distribution histogram showing success rate distribution across all questions.
@@ -101,19 +103,30 @@ class SuccessRateDistributionAnalyzer:
         """
         if output_dir is None:
             output_dir = get_output_directory('success_rate_distribution')
-        
+
         if question_stats.empty:
             print(f"⚠️  No question statistics for {model_name} - skipping plot")
             return
 
         print(f"📊 Creating success rate distribution histogram for {model_name}")
+        if dataset_name:
+            print(f"  Dataset: {dataset_name}")
         print(f"  Total questions: {len(question_stats)}")
 
         # File settings
         safe_model_name = model_name.replace('/', '_').replace('-', '_')
-        filename = f"success_rate_distribution"
+        if dataset_name:
+            safe_dataset = dataset_name.replace('/', '_').replace('-', '_')
+            filename = f"success_rate_distribution_{safe_dataset}"
+        else:
+            filename = f"success_rate_distribution"
         model_output_dir = f'{output_dir}/{safe_model_name}'
         output_png = f'{model_output_dir}/{filename}.png'
+
+        # Skip if file exists and not forcing overwrite
+        if not force_overwrite and os.path.exists(output_png):
+            print(f"⏭️  Skipping plot (exists): {output_png}")
+            return
 
         # Create the plot - exactly like the original file
         fig = plt.figure(figsize=(18, 12.5))
@@ -179,8 +192,16 @@ class SuccessRateDistributionAnalyzer:
 
         # Title with model name and total question count
         model_display = get_model_display_name(model_name).replace('\n', '')
-        plt.title(f'{model_display}\nSuccess Rate Distribution Analysis\n(Total Questions: {total_questions})',
-                  fontsize=28, fontfamily='DejaVu Serif', pad=20)
+        if dataset_name:
+            plt.title(
+                f'{model_display}\nSuccess Rate Distribution Analysis\nDataset: {dataset_name}  |  Total Questions: {total_questions}',
+                fontsize=28, fontfamily='DejaVu Serif', pad=20
+            )
+        else:
+            plt.title(
+                f'{model_display}\nSuccess Rate Distribution Analysis\n(Total Questions: {total_questions})',
+                fontsize=28, fontfamily='DejaVu Serif', pad=20
+            )
 
         plt.tight_layout()
 
@@ -195,12 +216,7 @@ class SuccessRateDistributionAnalyzer:
             transparent=PLOT_STYLE['transparent'],
             facecolor=PLOT_STYLE['facecolor']
         )
-        plt.savefig(
-            f'{model_output_dir}/{filename}.svg',
-            bbox_inches=PLOT_STYLE['bbox_inches'],
-            transparent=PLOT_STYLE['transparent'],
-            facecolor=PLOT_STYLE['facecolor']
-        )
+
 
         plt.close()
 
@@ -209,7 +225,10 @@ class SuccessRateDistributionAnalyzer:
         high_success = len(question_stats[question_stats['fraction_correct'] >= 0.9])
         low_success = len(question_stats[question_stats['fraction_correct'] <= 0.1])
 
-        print(f"✅ Created success rate distribution for {model_name}")
+        if dataset_name:
+            print(f"✅ Created success rate distribution for {model_name} (dataset: {dataset_name})")
+        else:
+            print(f"✅ Created success rate distribution for {model_name}")
         print(f"  - Total questions: {total_questions}")
         print(f"  - High success rate (≥90%): {high_success} ({high_success / total_questions * 100:.1f}%)")
         print(f"  - Low success rate (≤10%): {low_success} ({low_success / total_questions * 100:.1f}%)")
@@ -220,7 +239,9 @@ class SuccessRateDistributionAnalyzer:
             datasets: List[str],
             shots_list: List[int] = [0, 5],
             data_manager: DataManager = None,
-            output_dir: Path = None
+            output_dir: Path = None,
+            force_overwrite: bool = False,
+            min_configurations: int = 99
     ):
         """
         Perform success rate distribution analysis for each question for one model across all datasets.
@@ -234,7 +255,7 @@ class SuccessRateDistributionAnalyzer:
         """
         if output_dir is None:
             output_dir = get_output_directory('success_rate_distribution')
-        
+
         print(f"🔍 Starting success rate distribution analysis for {model_name}")
         print(f"  Datasets: {len(datasets)}")
         print(f"  Shots: {shots_list}")
@@ -266,6 +287,23 @@ class SuccessRateDistributionAnalyzer:
                 # Compute success rate statistics
                 dataset_question_stats = self._aggregate_samples_accuracy(dataset_data)
 
+                # Filter questions with minimum number of configurations
+                valid_dataset_questions = dataset_question_stats[
+                    dataset_question_stats['total_configurations'] >= min_configurations
+                ]
+
+                # Generate per-dataset plot
+                if not valid_dataset_questions.empty:
+                    self._create_success_rate_histogram(
+                        question_stats=valid_dataset_questions,
+                        model_name=model_name,
+                        output_dir=output_dir,
+                        dataset_name=dataset,
+                        force_overwrite=force_overwrite
+                    )
+                else:
+                    print(f"  ⚠️  {dataset}: No questions with ≥{min_configurations} configurations; skipping dataset plot")
+
                 if not dataset_question_stats.empty:
                     all_question_stats.append(dataset_question_stats)
                     print(f"  ✓ {dataset}: {len(dataset_question_stats)} questions processed")
@@ -281,11 +319,10 @@ class SuccessRateDistributionAnalyzer:
         # Combine all statistics from all datasets
         combined_question_stats = pd.concat(all_question_stats, ignore_index=True)
 
-        # Filter questions with minimum number of configurations (like in original file)
-        min_configurations = 99  # Can be adjusted
+        # Filter questions with minimum number of configurations
         valid_questions = combined_question_stats[
             combined_question_stats['total_configurations'] >= min_configurations
-            ]
+        ]
 
         print(f"  📊 Final statistics:")
         print(f"    - Total questions before filtering: {len(combined_question_stats)}")
@@ -295,11 +332,13 @@ class SuccessRateDistributionAnalyzer:
             print(f"❌ No questions with sufficient configurations for {model_name}")
             return
 
-        # Create the plot
+        # Create the combined plot
         self._create_success_rate_histogram(
             question_stats=valid_questions,
             model_name=model_name,
-            output_dir=output_dir
+            output_dir=output_dir,
+            dataset_name=None,
+            force_overwrite=force_overwrite
         )
 
 
@@ -320,8 +359,8 @@ python run_success_rate_distribution.py --num-processes 1 --no-cache
     parser.add_argument('--models', nargs='+', default=DEFAULT_MODELS,
                         help=f'List of models to analyze (default: {len(DEFAULT_MODELS)} models)')
 
-    parser.add_argument('--datasets', nargs='+', default=DEFAULT_DATASETS,
-                        help=f'List of datasets to analyze (default: {len(DEFAULT_DATASETS)} datasets)')
+    parser.add_argument('--datasets', nargs='+', default=FULL_DATASETS,
+                        help=f'List of datasets to analyze (default: {len(FULL_DATASETS)} datasets)')
 
     parser.add_argument('--shots', nargs='+', type=int, default=DEFAULT_SHOTS,
                         help=f'List of shot counts to analyze (default: {DEFAULT_SHOTS})')
@@ -365,7 +404,7 @@ def main():
 
     if args.list_datasets:
         print("Default datasets:")
-        for i, dataset in enumerate(DEFAULT_DATASETS, 1):
+        for i, dataset in enumerate(FULL_DATASETS, 1):
             print(f"  {i}. {dataset}")
         return
 
@@ -414,7 +453,8 @@ def main():
                 datasets=selected_datasets,
                 shots_list=shots_to_evaluate,
                 data_manager=data_manager,
-                output_dir=output_dir
+                output_dir=output_dir,
+                force_overwrite=force_overwrite
             )
             total_analyses += 1
 
